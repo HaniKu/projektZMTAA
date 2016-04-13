@@ -3,29 +3,40 @@ package com.example.hanka.projektmtaaa;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 
 public class CreateNewItem extends AppCompatActivity {
-Button save;
+    private Button save;
+    private static final String TAG = "MyActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_new_item);
         save = (Button) findViewById(R.id.save);
-        save.setOnClickListener(new View.OnClickListener()
 
+        save.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View arg0) {
-
+                String URL = "https://api.backendless.com/v1/data/skuska";
+                new POSTAsyncTask().execute(URL);
             }
         });
     }
@@ -37,7 +48,7 @@ Button save;
         protected String doInBackground(String... urls) {
 
             try {
-                return httpPOST(urls[0], urls[1]);
+                return httpPOST(urls[0]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -53,26 +64,93 @@ Button save;
     }
 
 
-    public String httpPOST(String urlStr, String out) throws IOException {
+    public String httpPOST(String urlStr) throws IOException {
+        JSONObject json = new JSONObject();
+        HttpURLConnection conn = null;
+        RadioGroup radioSexGroup = (RadioGroup) findViewById(R.id.radioGroup1);
+        RadioGroup radioSexGroupSmoking = (RadioGroup) findViewById(R.id.radioGroup2);
+        RadioGroup radioSexGrouplactoza = (RadioGroup) findViewById(R.id.radioGroup3);
+        RadioGroup radioSexGroupglukoza = (RadioGroup) findViewById(R.id.radioGroup4);
+        int selectedId = radioSexGroup.getCheckedRadioButtonId();
+        int selectedId1 = radioSexGroupSmoking.getCheckedRadioButtonId();
+        int selectedId2 = radioSexGrouplactoza.getCheckedRadioButtonId();
+        int selectedId3 = radioSexGroupglukoza.getCheckedRadioButtonId();
+        RadioButton radioSexButton = (RadioButton) findViewById(selectedId);
+        RadioButton radioSexButtonSmoking =  (RadioButton) findViewById(selectedId1);
+        RadioButton radioSexButtonlactoza =  (RadioButton) findViewById(selectedId2);
+        RadioButton radioSexButtonglukoza =  (RadioButton) findViewById(selectedId3);
+
+        EditText editText3 = (EditText) findViewById(R.id.editText3);
+        EditText editText4 = (EditText) findViewById(R.id.editText4);
+        EditText editText5 = (EditText) findViewById(R.id.editText5);
+        EditText editText = (EditText) findViewById(R.id.editText);
+        EditText editText2 = (EditText) findViewById(R.id.editName);
+        String wifiBool = (String) radioSexButton.getText();
+        String smokeBool = (String) radioSexButtonSmoking.getText();
+        String lactoseBool = (String) radioSexButtonlactoza.getText();
+        String glukozaBool = (String) radioSexButtonglukoza.getText();
+
+
+
+        try {
+            json.put("category", Integer.valueOf(editText3.getText().toString()));
+            json.put("name", String.valueOf(editText2.getText().toString()));
+            json.put("adress", String.valueOf(editText4.getText().toString()));
+            json.put("phoneNumber", String.valueOf(editText5.getText().toString()));
+            json.put("openingHours", String.valueOf(editText.getText().toString()));
+            json.put("glutenFree", Boolean.valueOf(glukozaBool));
+            json.put("lactoseFree", Boolean.valueOf(lactoseBool));
+            json.put("smoking", Boolean.valueOf(smokeBool));
+            json.put("wifi", Boolean.valueOf(wifiBool));
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try{
         URL url = new URL(urlStr);
-        HttpURLConnection conn =
-                (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
+         conn = (HttpURLConnection) url.openConnection();
         conn.setDoOutput(true);
         conn.setDoInput(true);
-        conn.setUseCaches(false);
-        conn.setAllowUserInteraction(false);
-        conn.addRequestProperty("application-ID", "D4B8ADB1-7A2E-8F1D-FF06-57B7982C3B00");
-        conn.addRequestProperty("secret-key", "8FC25AC0-1ADB-9D56-FFD4-174BEABFA200");
+        conn.setRequestMethod("POST");
+        //conn.setUseCaches(false);//
+        //conn.setAllowUserInteraction(false);//
+        conn.addRequestProperty("application-ID", "CCB8E7ED-C40B-4D67-FF14-5FD1DC41F500");
+        conn.addRequestProperty("secret-key", "A92106B5-AACE-6ACD-FF2A-9F2F83830600");
         conn.addRequestProperty("Content-Type", "application/json");
         conn.addRequestProperty("application-type", "REST");
-        OutputStream outs  = conn.getOutputStream();
+            OutputStreamWriter outs  = new OutputStreamWriter(conn.getOutputStream());
+            Log.i(TAG, "SENDING: " + json.toString());
+            outs.write(json.toString());
+            outs.flush();
+            outs.close();
         
 //// TODO: 13. 4. 2016 kuknut writer
 //        writer.close();
-        outs.close();
+   //     outs.close();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        if (conn.getResponseCode() != 200) {
+        if (conn.getResponseCode() == 403) {
+            Log.i(TAG, "server reached; but access denied");
+        }
+        else if (conn.getResponseCode() == 404) {
+            Log.i(TAG, "unknown URL");
+        }
+        else if (conn.getResponseCode() == 200) {
+            Log.i(TAG, "request successfull");
+        }
+        else {
+            Log.i(TAG,(String.valueOf(conn.getResponseCode())));
+            Log.i(TAG, "error http response");
+            Log.i(TAG,"error stream: "+conn.getErrorStream().toString());
+            Log.i(TAG,conn.getResponseMessage().toString());
+
             throw new IOException(conn.getResponseMessage());
         }
 

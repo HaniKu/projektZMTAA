@@ -34,6 +34,26 @@
                     android:layout_width="95dp"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Name"
+                    android:id="@+id/textView4" />
+
+                <EditText
+                    android:layout_width="271dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/editName"
+                    android:inputType="none" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:weightSum="1" >
+
+                <TextView
+                    android:layout_width="95dp"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="Type"
                     android:id="@+id/textView9" />
 
@@ -120,7 +140,9 @@
 
                 <RadioGroup
                     android:layout_width="173dp"
-                    android:layout_height="match_parent" >
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:id="@+id/radioGroup1">
 
                     <RadioButton
                         android:id="@+id/radioButton"
@@ -155,7 +177,9 @@
 
                 <RadioGroup
                     android:layout_width="222dp"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:id="@+id/radioGroup2">
 
                 <RadioButton
                     android:layout_width="101dp"
@@ -191,7 +215,9 @@
 
                 <RadioGroup
                     android:layout_width="222dp"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:id="@+id/radioGroup3">
                 <RadioButton
                     android:layout_width="101dp"
                     android:layout_height="wrap_content"
@@ -225,7 +251,9 @@
 
                 <RadioGroup
                     android:layout_width="222dp"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:id="@+id/radioGroup4">
                 <RadioButton
                     android:layout_width="101dp"
                     android:layout_height="wrap_content"
