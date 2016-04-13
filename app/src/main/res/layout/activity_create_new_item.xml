@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.hanka.projektmtaaa.CreateNewItem"
+    android:weightSum="1">
+
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/scrollView" >
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:weightSum="1" >
+
+                <TextView
+                    android:layout_width="95dp"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Type"
+                    android:id="@+id/textView9" />
+
+                <EditText
+                    android:layout_width="271dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/editText3"
+                    android:inputType="none" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="354dp"
+                android:layout_height="50dp"
+                android:weightSum="1" >
+
+                <TextView
+                    android:layout_width="95dp"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Address"
+                    android:id="@+id/textView10"
+                    android:layout_weight="0.11" />
+
+                <EditText
+                    android:layout_width="271dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/editText4"
+                    android:layout_weight="0.94" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:weightSum="1" >
+
+                <TextView
+                    android:layout_width="95dp"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Kontact"
+                    android:id="@+id/textView11" />
+
+                <EditText
+                    android:layout_width="245dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/editText5" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:weightSum="1" >
+
+                <TextView
+                    android:layout_width="95dp"
+                    android:layout_height="61dp"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Opening Hours"
+                    android:id="@+id/textView3" />
+
+                <EditText
+                    android:layout_width="271dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/editText"
+                    android:inputType="none" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="57dp"
+                android:weightSum="1" >
+
+                <TextView
+                    android:layout_width="110dp"
+                    android:layout_height="fill_parent"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="wifi"
+                    android:gravity="center_vertical"
+                    android:id="@+id/textView12" />
+
+                <RadioGroup
+                    android:layout_width="173dp"
+                    android:layout_height="match_parent" >
+
+                    <RadioButton
+                        android:id="@+id/radioButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="24dp"
+                        android:text="TRUE"
+                        android:layout_weight="0.20" />
+
+                    <RadioButton
+                        android:id="@+id/radioButton2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="FALSE"
+                        android:checked="false" />
+                </RadioGroup>
+            </LinearLayout>
+            <View style="@style/Divider"/>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="57dp"
+                android:weightSum="1"
+                android:gravity="center_vertical" >
+
+                <TextView
+                    android:layout_width="110dp"
+                    android:layout_height="fill_parent"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="Smoking"
+                    android:gravity="center_vertical"
+                    android:id="@+id/textView13" />
+
+                <RadioGroup
+                    android:layout_width="222dp"
+                    android:layout_height="match_parent">
+
+                <RadioButton
+                    android:layout_width="101dp"
+                    android:layout_height="wrap_content"
+                    android:text="TRUE"
+                    android:id="@+id/radioButton11"
+                    android:checked="false" />
+
+                <RadioButton
+                    android:layout_width="112dp"
+                    android:layout_height="wrap_content"
+                    android:text="FALSE"
+                    android:id="@+id/radioButton12"
+                    android:checked="false" />
+                </RadioGroup>
+
+            </LinearLayout>
+            <View style="@style/Divider"/>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="57dp"
+                android:weightSum="1"
+                android:gravity="center_vertical" >
+
+                <TextView
+                    android:layout_width="110dp"
+                    android:layout_height="fill_parent"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="lactose free milk"
+                    android:gravity="center_vertical"
+                    android:id="@+id/textView14" />
+
+                <RadioGroup
+                    android:layout_width="222dp"
+                    android:layout_height="match_parent">
+                <RadioButton
+                    android:layout_width="101dp"
+                    android:layout_height="wrap_content"
+                    android:text="TRUE"
+                    android:id="@+id/radioButton13"
+                    android:checked="false" />
+
+                <RadioButton
+                    android:layout_width="112dp"
+                    android:layout_height="wrap_content"
+                    android:text="FALSE"
+                    android:id="@+id/radioButton14"
+                    android:checked="false" />
+                </RadioGroup>
+            </LinearLayout>
+            <View style="@style/Divider"/>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="57dp"
+                android:weightSum="1"
+                android:gravity="center_vertical" >
+
+                <TextView
+                    android:layout_width="110dp"
+                    android:layout_height="fill_parent"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="gluten free cakes"
+                    android:gravity="center_vertical"
+                    android:id="@+id/textView15" />
+
+                <RadioGroup
+                    android:layout_width="222dp"
+                    android:layout_height="match_parent">
+                <RadioButton
+                    android:layout_width="101dp"
+                    android:layout_height="wrap_content"
+                    android:text="TRUE"
+                    android:id="@+id/radioButton15"
+                    android:checked="false" />
+
+                <RadioButton
+                    android:layout_width="112dp"
+                    android:layout_height="wrap_content"
+                    android:text="FALSE"
+                    android:id="@+id/radioButton16"
+                    android:checked="false" />
+            </RadioGroup>
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="1" >
+
+                <Button
+                    android:layout_width="111dp"
+                    android:layout_height="wrap_content"
+                    android:text="Cancel"
+                    android:id="@+id/cancel" />
+
+                <Button
+                    android:layout_width="111dp"
+                    android:layout_height="wrap_content"
+                    android:text="Save"
+                    android:id="@+id/save"
+                    android:layout_marginLeft="60dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>

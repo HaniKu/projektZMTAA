@@ -34,7 +34,7 @@ public class Display extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
         List = (ListView) findViewById(R.id.textak);
-        pridatNovy = (Button) findViewById(R.id.novaVec);
+        pridatNovy = (Button) findViewById(R.id.pridatNovy);
         new HttpAsyncTask().execute("https://api.backendless.com/v1/data/skuska");
         if (isConnected()) ;
 
