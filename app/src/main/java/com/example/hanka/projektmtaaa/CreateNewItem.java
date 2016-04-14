@@ -103,6 +103,7 @@ public class CreateNewItem extends AppCompatActivity {
             json.put("lactoseFree", Boolean.valueOf(lactoseBool));
             json.put("smoking", Boolean.valueOf(smokeBool));
             json.put("wifi", Boolean.valueOf(wifiBool));
+            json.put("picture","http://temp.zocalo.com.mx/galerias/bc5418699b2beba/fotos/bc5418699b2e31e_Captura-de-pantalla-2014-09-16-a-las-10.31.06.jpg");
 
 
         } catch (JSONException e) {

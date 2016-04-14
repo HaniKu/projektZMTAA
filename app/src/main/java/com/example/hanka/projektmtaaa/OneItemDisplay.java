@@ -10,8 +10,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,7 +36,7 @@ public class OneItemDisplay extends AppCompatActivity {
     public String getPoleJson() {
         return poleJson;
     }
-
+    String urlObrazka;
     String poleJson = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +45,6 @@ public class OneItemDisplay extends AppCompatActivity {
         List = (ListView) findViewById(R.id.textik);
      cities = getIntent().getStringExtra("");
 
-       // tv.setText(cities);
         String skuska = "https://api.backendless.com/v1/data/skuska?where=objectId%20%3D%20'"+cities+"'";
         Log.d("skuska","som tu");
         new HttpAsyncTask().execute(skuska);
@@ -109,7 +111,6 @@ public class OneItemDisplay extends AppCompatActivity {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
-           // Toast.makeText(getBaseContext(), "you are connected!", Toast.LENGTH_LONG).show();
             return true;
         }
         else
@@ -134,9 +135,6 @@ public class OneItemDisplay extends AppCompatActivity {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            //  Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
-
-            //tv.setText(result);
             Log.d("skuska",result);
             vypisJson(result);
         }
@@ -144,7 +142,6 @@ public class OneItemDisplay extends AppCompatActivity {
 
     public void vypisJson(String strJson){
         poleJson = strJson;
-        //  ArrayAdapter<String> adapter = new ArrayAdapter<String>();
         ArrayList<String> adapter = new ArrayList<String>();
         final ArrayList<String> objectID = new ArrayList<String>();
         try {
@@ -165,6 +162,8 @@ public class OneItemDisplay extends AppCompatActivity {
                 boolean smoking = Boolean.parseBoolean(jsonObject.optString("smoking").toString());
                 boolean lactoseFree = Boolean.parseBoolean(jsonObject.optString("lactoseFree").toString());
                 boolean glutenFree = Boolean.parseBoolean(jsonObject.optString("glutenFree").toString());
+                urlObrazka = jsonObject.optString("picture").toString();
+                Log.d(TAG,urlObrazka);
                 String infro =" \n name= "+ meno +" \n adress= "+ adress +" \n " + " \n opening hours= "+ openingHours +" \n phone Number= "+ phoneNumber +" \n "+" \n wifi= "+ wifi +" \n " + " \n smoking= "+ smoking +" \n lactoseFree = "+ lactoseFree +" \n "+" \n glutenFree= "+ glutenFree +" \n " ;
                 adapter.add(infro);
             }
@@ -174,6 +173,7 @@ public class OneItemDisplay extends AppCompatActivity {
         ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, adapter);
         List.setAdapter(adapter1);
-
+        ImageView imageView = (ImageView) findViewById(R.id.imageView);
+        Picasso.with(this).load(urlObrazka).into(imageView);
     }
 }
