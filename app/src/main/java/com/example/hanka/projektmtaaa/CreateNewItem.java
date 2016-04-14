@@ -42,7 +42,7 @@ public class CreateNewItem extends AppCompatActivity {
         });
     }
 //// TODO: 14. 4. 2016 osetrit vstupy, ze clovek nemoze zadat nejaku blbost.. spravit to blbovzdorne, to iste plati aj pri edit
-
+//// TODO: 14. 4. 2016 spravit zvacsenie obrazku 
     private class POSTAsyncTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
