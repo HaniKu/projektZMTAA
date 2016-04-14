@@ -35,7 +35,7 @@ public class Display extends AppCompatActivity {
         setContentView(R.layout.activity_display);
         List = (ListView) findViewById(R.id.textak);
         pridatNovy = (Button) findViewById(R.id.pridatNovy);
-        new HttpAsyncTask().execute("https://api.backendless.com/v1/data/skuska");
+        new HttpAsyncTask().execute("https://api.backendless.com/v1/data/skuska?pageSize=100");
         if (isConnected()) ;
 
 
@@ -131,11 +131,12 @@ public class Display extends AppCompatActivity {
 
                 // int id = Integer.parseInt(jsonObject.optString("category").toString());
                 String adress = jsonObject.optString("adress").toString();
-                String meno = jsonObject.optString("meno").toString();
+                String meno = jsonObject.optString("name").toString();
                 String id = jsonObject.optString("objectId").toString();
                 //  boolean wifi = Boolean.parseBoolean(jsonObject.optString("wifi").toString());
 
                 String infro = " \n name= " + meno + " \n adress= " + adress + " \n ";
+
                 adapter.add(infro);
                 objectID.add(id);
             }

@@ -8,10 +8,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,26 +22,66 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.ArrayList;
 
-public class CreateNewItem extends AppCompatActivity {
-    private Button save;
+public class EditItem extends AppCompatActivity {
     private static final String TAG = "MyActivity";
+    private Button save;
+    String cities;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_new_item);
+        setContentView(R.layout.activity_edit_item);
+        String jsonCoTrebaParse = getIntent().getStringExtra("");
+        cities = getIntent().getStringExtra("id");
+        Log.i(TAG, "id je " + cities);
+        vypisJson(jsonCoTrebaParse);
         save = (Button) findViewById(R.id.save);
 
-        save.setOnClickListener(new View.OnClickListener()
-        {
+        save.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
-                String URL = "https://api.backendless.com/v1/data/skuska";
+                String URL = "https://api.backendless.com/v1/data/skuska?where=objectId%20%3D%20'"+cities+"'";
                 new POSTAsyncTask().execute(URL);
             }
         });
     }
 
-    //new POSTAsyncTask().execute(URL, jsonstring);
+    public void vypisJson(String strJson){
+
+        EditText editText2 = (EditText) findViewById(R.id.editName);
+        EditText editText4 = (EditText) findViewById(R.id.editText4);
+        EditText editText5 = (EditText) findViewById(R.id.editText5);
+        EditText editText = (EditText) findViewById(R.id.editText);
+        EditText wifi = (EditText) findViewById(R.id.wifi);
+        EditText flukoza = (EditText) findViewById(R.id.glukoza);
+        EditText lactoza = (EditText) findViewById(R.id.lactosa);
+        EditText smoking = (EditText) findViewById(R.id.smoke);
+        //  ArrayAdapter<String> adapter = new ArrayAdapter<String>();
+        ArrayList<String> adapter = new ArrayList<String>();
+        final ArrayList<String> objectID = new ArrayList<String>();
+        try {
+            JSONObject jsonRootObject = new JSONObject(strJson);
+
+            //Get the instance of JSONArray that contains JSONObjects
+            JSONArray jsonArray = jsonRootObject.optJSONArray("data");
+
+            //Iterate the jsonArray and print the info of JSONObjects
+            for(int i=0; i < jsonArray.length(); i++){
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                editText2.setText(jsonObject.optString("name").toString());
+                editText4.setText(jsonObject.optString("adress").toString());
+                editText.setText(jsonObject.optString("openingHours").toString());
+                editText5.setText(jsonObject.optString("phoneNumber").toString());
+                wifi.setText((jsonObject.optString("wifi").toString()));
+                smoking.setText((jsonObject.optString("smoking").toString()));
+                 lactoza.setText((jsonObject.optString("lactoseFree").toString()));
+                flukoza.setText((jsonObject.optString("glutenFree").toString()));
+            }
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
 
     private class POSTAsyncTask extends AsyncTask<String, Void, String> {
         @Override
@@ -59,7 +98,7 @@ public class CreateNewItem extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             Toast.makeText(getBaseContext(), "Sent!", Toast.LENGTH_LONG).show();
-            Intent a = new Intent(CreateNewItem.this, Display.class);
+            Intent a = new Intent(EditItem.this, Display.class);
             startActivity(a);
         }
 
@@ -67,32 +106,18 @@ public class CreateNewItem extends AppCompatActivity {
 
 
     public String httpPOST(String urlStr) throws IOException {
+
         JSONObject json = new JSONObject();
         HttpURLConnection conn = null;
-        RadioGroup radioSexGroup = (RadioGroup) findViewById(R.id.radioGroup1);
-        RadioGroup radioSexGroupSmoking = (RadioGroup) findViewById(R.id.radioGroup2);
-        RadioGroup radioSexGrouplactoza = (RadioGroup) findViewById(R.id.radioGroup3);
-        RadioGroup radioSexGroupglukoza = (RadioGroup) findViewById(R.id.radioGroup4);
-        int selectedId = radioSexGroup.getCheckedRadioButtonId();
-        int selectedId1 = radioSexGroupSmoking.getCheckedRadioButtonId();
-        int selectedId2 = radioSexGrouplactoza.getCheckedRadioButtonId();
-        int selectedId3 = radioSexGroupglukoza.getCheckedRadioButtonId();
-        RadioButton radioSexButton = (RadioButton) findViewById(selectedId);
-        RadioButton radioSexButtonSmoking =  (RadioButton) findViewById(selectedId1);
-        RadioButton radioSexButtonlactoza =  (RadioButton) findViewById(selectedId2);
-        RadioButton radioSexButtonglukoza =  (RadioButton) findViewById(selectedId3);
-
+        EditText wifi = (EditText) findViewById(R.id.wifi);
+        EditText flukoza = (EditText) findViewById(R.id.glukoza);
+        EditText lactoza = (EditText) findViewById(R.id.lactosa);
+        EditText smoking = (EditText) findViewById(R.id.smoke);
         EditText editText3 = (EditText) findViewById(R.id.editText3);
         EditText editText4 = (EditText) findViewById(R.id.editText4);
         EditText editText5 = (EditText) findViewById(R.id.editText5);
         EditText editText = (EditText) findViewById(R.id.editText);
         EditText editText2 = (EditText) findViewById(R.id.editName);
-        String wifiBool = (String) radioSexButton.getText();
-        String smokeBool = (String) radioSexButtonSmoking.getText();
-        String lactoseBool = (String) radioSexButtonlactoza.getText();
-        String glukozaBool = (String) radioSexButtonglukoza.getText();
-
-
 
         try {
             json.put("category", Integer.valueOf(editText3.getText().toString()));
@@ -100,36 +125,36 @@ public class CreateNewItem extends AppCompatActivity {
             json.put("adress", String.valueOf(editText4.getText().toString()));
             json.put("phoneNumber", String.valueOf(editText5.getText().toString()));
             json.put("openingHours", String.valueOf(editText.getText().toString()));
-            json.put("glutenFree", Boolean.valueOf(glukozaBool));
-            json.put("lactoseFree", Boolean.valueOf(lactoseBool));
-            json.put("smoking", Boolean.valueOf(smokeBool));
-            json.put("wifi", Boolean.valueOf(wifiBool));
-
+            //json.put("glutenFree", Boolean.valueOf(flukoza.getText().toString()));
+           // json.put("lactoseFree", Boolean.valueOf(lactoza.getText().toString()));
+            //json.put("smoking", Boolean.valueOf(smoking.getText().toString()));
+          //  json.put("wifi", Boolean.valueOf(wifi.getText().toString()));
+            Log.i(TAG, "som v httpPOST za deklaraciami  ");
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
         try{
-        URL url = new URL(urlStr);
-         conn = (HttpURLConnection) url.openConnection();
-        conn.setDoOutput(true);
-        conn.setDoInput(true);
-        conn.setRequestMethod("POST");
-        //conn.setUseCaches(false);//
-        //conn.setAllowUserInteraction(false);//
-        conn.addRequestProperty("application-ID", "CCB8E7ED-C40B-4D67-FF14-5FD1DC41F500");
-        conn.addRequestProperty("secret-key", "A92106B5-AACE-6ACD-FF2A-9F2F83830600");
-        conn.addRequestProperty("Content-Type", "application/json");
-        conn.addRequestProperty("application-type", "REST");
+            URL url = new URL(urlStr);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.setRequestMethod("PUT");
+            //conn.setUseCaches(false);//
+            //conn.setAllowUserInteraction(false);//
+            conn.addRequestProperty("application-ID", "CCB8E7ED-C40B-4D67-FF14-5FD1DC41F500");
+            conn.addRequestProperty("secret-key", "A92106B5-AACE-6ACD-FF2A-9F2F83830600");
+            conn.addRequestProperty("Content-Type", "application/json");
+            conn.addRequestProperty("application-type", "REST");
             OutputStreamWriter outs  = new OutputStreamWriter(conn.getOutputStream());
             Log.i(TAG, "SENDING: " + json.toString());
             outs.write(json.toString());
             outs.flush();
             outs.close();
-        
+
 //// TODO: 13. 4. 2016 kuknut writer
 //        writer.close();
-   //     outs.close();
+            //     outs.close();
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (ProtocolException e) {
@@ -170,5 +195,4 @@ public class CreateNewItem extends AppCompatActivity {
         conn.disconnect();
         return sb.toString();
     }
-
 }

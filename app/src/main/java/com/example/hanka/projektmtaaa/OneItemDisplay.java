@@ -1,12 +1,15 @@
 package com.example.hanka.projektmtaaa;
 
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -23,12 +26,20 @@ import java.util.ArrayList;
 
 public class OneItemDisplay extends AppCompatActivity {
     ListView List;
+     Button edit;
+    String cities;
+    private static final String TAG = "MyActivity";
+    public String getPoleJson() {
+        return poleJson;
+    }
+
+    String poleJson = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_one_item_display);
         List = (ListView) findViewById(R.id.textik);
-    String cities = getIntent().getStringExtra("");
+     cities = getIntent().getStringExtra("");
 
        // tv.setText(cities);
         String skuska = "https://api.backendless.com/v1/data/skuska?where=objectId%20%3D%20'"+cities+"'";
@@ -36,6 +47,19 @@ public class OneItemDisplay extends AppCompatActivity {
         new HttpAsyncTask().execute(skuska);
         if (isConnected());
 
+        edit = (Button) findViewById(R.id.edit);
+        edit.setOnClickListener(new View.OnClickListener()
+
+        {
+            public void onClick (View arg0){
+                Log.i(TAG, "pole pred novou aktivitou" + getPoleJson());
+                Intent myIntent = new Intent(OneItemDisplay.this,
+                        EditItem.class);
+                myIntent.putExtra("", getPoleJson());
+                myIntent.putExtra("id",cities);
+                startActivity(myIntent);
+            }
+        });
     }
 
     public String httpGET(String urlStr) throws IOException
@@ -106,6 +130,7 @@ public class OneItemDisplay extends AppCompatActivity {
     }
 
     public void vypisJson(String strJson){
+        poleJson = strJson;
         //  ArrayAdapter<String> adapter = new ArrayAdapter<String>();
         ArrayList<String> adapter = new ArrayList<String>();
         final ArrayList<String> objectID = new ArrayList<String>();
@@ -113,13 +138,13 @@ public class OneItemDisplay extends AppCompatActivity {
             JSONObject jsonRootObject = new JSONObject(strJson);
 
             //Get the instance of JSONArray that contains JSONObjects
-            JSONArray jsonArray = jsonRootObject.optJSONArray("data");
+            JSONArray  jsonArray = jsonRootObject.optJSONArray("data");
 
             //Iterate the jsonArray and print the info of JSONObjects
             for(int i=0; i < jsonArray.length(); i++){
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                String meno = jsonObject.optString("meno").toString();
+                String meno = jsonObject.optString("name").toString();
                 String adress = jsonObject.optString("adress").toString();
                 String openingHours = jsonObject.optString("openingHours").toString();
                 String phoneNumber = jsonObject.optString("phoneNumber").toString();
@@ -127,15 +152,12 @@ public class OneItemDisplay extends AppCompatActivity {
                 boolean smoking = Boolean.parseBoolean(jsonObject.optString("smoking").toString());
                 boolean lactoseFree = Boolean.parseBoolean(jsonObject.optString("lactoseFree").toString());
                 boolean glutenFree = Boolean.parseBoolean(jsonObject.optString("glutenFree").toString());
-               // String infro =" \n name= "+ meno +" \n adress= "+ adress;
                 String infro =" \n name= "+ meno +" \n adress= "+ adress +" \n " + " \n opening hours= "+ openingHours +" \n phone Number= "+ phoneNumber +" \n "+" \n wifi= "+ wifi +" \n " + " \n smoking= "+ smoking +" \n lactoseFree = "+ lactoseFree +" \n "+" \n glutenFree= "+ glutenFree +" \n " ;
                 adapter.add(infro);
-               // Log.d("skuska",infro);
             }
         } catch (JSONException e){
             e.printStackTrace();
         }
-        // Log.d("log", String.valueOf(objectID));
         ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, adapter);
         List.setAdapter(adapter1);

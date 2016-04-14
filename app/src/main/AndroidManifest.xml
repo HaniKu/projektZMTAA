@@ -38,7 +38,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CreateNewItem"></activity>
+        <activity android:name=".CreateNewItem" />
+        <activity android:name=".EditItem"></activity>
     </application>
 
 </manifest>
