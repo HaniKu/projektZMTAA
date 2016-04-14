@@ -27,6 +27,7 @@ import java.util.ArrayList;
 public class OneItemDisplay extends AppCompatActivity {
     ListView List;
      Button edit;
+    Button delete;
     String cities;
     private static final String TAG = "MyActivity";
     public String getPoleJson() {
@@ -58,6 +59,18 @@ public class OneItemDisplay extends AppCompatActivity {
                 myIntent.putExtra("", getPoleJson());
                 myIntent.putExtra("id",cities);
                 startActivity(myIntent);
+            }
+        });
+
+        delete = (Button) findViewById(R.id.delete);
+        delete.setOnClickListener(new View.OnClickListener()
+
+        {
+            public void onClick (View arg0){
+                DeleteItem delete = new DeleteItem(cities);
+                Toast.makeText(getBaseContext(), "Deleted!", Toast.LENGTH_LONG).show();
+                Intent a = new Intent(OneItemDisplay.this, Display.class);
+                startActivity(a);
             }
         });
     }
@@ -96,7 +109,7 @@ public class OneItemDisplay extends AppCompatActivity {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
-            Toast.makeText(getBaseContext(), "you are connected!", Toast.LENGTH_LONG).show();
+           // Toast.makeText(getBaseContext(), "you are connected!", Toast.LENGTH_LONG).show();
             return true;
         }
         else

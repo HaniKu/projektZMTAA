@@ -41,8 +41,7 @@ public class CreateNewItem extends AppCompatActivity {
             }
         });
     }
-
-    //new POSTAsyncTask().execute(URL, jsonstring);
+//// TODO: 14. 4. 2016 osetrit vstupy, ze clovek nemoze zadat nejaku blbost.. spravit to blbovzdorne, to iste plati aj pri edit
 
     private class POSTAsyncTask extends AsyncTask<String, Void, String> {
         @Override
@@ -115,8 +114,6 @@ public class CreateNewItem extends AppCompatActivity {
         conn.setDoOutput(true);
         conn.setDoInput(true);
         conn.setRequestMethod("POST");
-        //conn.setUseCaches(false);//
-        //conn.setAllowUserInteraction(false);//
         conn.addRequestProperty("application-ID", "CCB8E7ED-C40B-4D67-FF14-5FD1DC41F500");
         conn.addRequestProperty("secret-key", "A92106B5-AACE-6ACD-FF2A-9F2F83830600");
         conn.addRequestProperty("Content-Type", "application/json");
@@ -126,10 +123,6 @@ public class CreateNewItem extends AppCompatActivity {
             outs.write(json.toString());
             outs.flush();
             outs.close();
-        
-//// TODO: 13. 4. 2016 kuknut writer
-//        writer.close();
-   //     outs.close();
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (ProtocolException e) {

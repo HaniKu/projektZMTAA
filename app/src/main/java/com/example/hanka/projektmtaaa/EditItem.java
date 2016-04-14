@@ -120,15 +120,14 @@ public class EditItem extends AppCompatActivity {
         EditText editText2 = (EditText) findViewById(R.id.editName);
 
         try {
-            json.put("category", Integer.valueOf(editText3.getText().toString()));
             json.put("name", String.valueOf(editText2.getText().toString()));
             json.put("adress", String.valueOf(editText4.getText().toString()));
             json.put("phoneNumber", String.valueOf(editText5.getText().toString()));
             json.put("openingHours", String.valueOf(editText.getText().toString()));
-            //json.put("glutenFree", Boolean.valueOf(flukoza.getText().toString()));
-           // json.put("lactoseFree", Boolean.valueOf(lactoza.getText().toString()));
-            //json.put("smoking", Boolean.valueOf(smoking.getText().toString()));
-          //  json.put("wifi", Boolean.valueOf(wifi.getText().toString()));
+            json.put("glutenFree", Boolean.valueOf(flukoza.getText().toString()));
+            json.put("lactoseFree", Boolean.valueOf(lactoza.getText().toString()));
+            json.put("smoking", Boolean.valueOf(smoking.getText().toString()));
+            json.put("wifi", Boolean.valueOf(wifi.getText().toString()));
             Log.i(TAG, "som v httpPOST za deklaraciami  ");
 
         } catch (JSONException e) {
@@ -140,8 +139,6 @@ public class EditItem extends AppCompatActivity {
             conn.setDoOutput(true);
             conn.setDoInput(true);
             conn.setRequestMethod("PUT");
-            //conn.setUseCaches(false);//
-            //conn.setAllowUserInteraction(false);//
             conn.addRequestProperty("application-ID", "CCB8E7ED-C40B-4D67-FF14-5FD1DC41F500");
             conn.addRequestProperty("secret-key", "A92106B5-AACE-6ACD-FF2A-9F2F83830600");
             conn.addRequestProperty("Content-Type", "application/json");
@@ -151,10 +148,6 @@ public class EditItem extends AppCompatActivity {
             outs.write(json.toString());
             outs.flush();
             outs.close();
-
-//// TODO: 13. 4. 2016 kuknut writer
-//        writer.close();
-            //     outs.close();
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (ProtocolException e) {
