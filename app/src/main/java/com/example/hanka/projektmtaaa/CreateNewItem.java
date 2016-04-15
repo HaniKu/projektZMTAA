@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -81,30 +82,55 @@ public class CreateNewItem extends AppCompatActivity {
         RadioButton radioSexButtonlactoza =  (RadioButton) findViewById(selectedId2);
         RadioButton radioSexButtonglukoza =  (RadioButton) findViewById(selectedId3);
 
-        EditText editText3 = (EditText) findViewById(R.id.editText3);
+        final Spinner spin = (Spinner) findViewById(R.id.spin);
+        final Integer edittext11;
+        final Integer edittext31;
         EditText editText4 = (EditText) findViewById(R.id.editText4);
         EditText editText5 = (EditText) findViewById(R.id.editText5);
-        EditText editText = (EditText) findViewById(R.id.editText);
+        Spinner editText = (Spinner) findViewById(R.id.editText);
         EditText editText2 = (EditText) findViewById(R.id.editName);
         String wifiBool = (String) radioSexButton.getText();
         String smokeBool = (String) radioSexButtonSmoking.getText();
         String lactoseBool = (String) radioSexButtonlactoza.getText();
         String glukozaBool = (String) radioSexButtonglukoza.getText();
-
-
-
+        String edittext3 = spin.getSelectedItem().toString();
+        switch (edittext3) {
+            case "Bakery cafe":
+                edittext11 = 1; // they are executed if variable == c1
+                Log.i(TAG, "Bakery cafe" + edittext3);
+                break;
+            case "Cafe":
+                edittext11= 2; // they are executed if variable == c2
+                Log.i(TAG, "Cafe" + edittext3);
+                break;
+            default:
+                edittext11 = 3; // they are executed if none of the above case is satisfied
+                Log.i(TAG, "zvysok" + edittext3);
+                break;
+        }
+        String edittext12 = editText.getSelectedItem().toString();
+        switch (edittext12) {
+            case "nonstop":
+                edittext31 = 1; // they are executed if variable == c1
+                break;
+            case "closed":
+                edittext31 = 2; // they are executed if variable == c2
+                break;
+            default:
+                edittext31 = 3; // they are executed if none of the above case is satisfied
+                break;
+        }
         try {
-            json.put("category", Integer.valueOf(editText3.getText().toString()));
+           json.put("category", Integer.valueOf(edittext11));
             json.put("name", String.valueOf(editText2.getText().toString()));
             json.put("adress", String.valueOf(editText4.getText().toString()));
             json.put("phoneNumber", String.valueOf(editText5.getText().toString()));
-            json.put("openingHours", String.valueOf(editText.getText().toString()));
+            json.put("openingHours", String.valueOf(edittext31));
             json.put("glutenFree", Boolean.valueOf(glukozaBool));
             json.put("lactoseFree", Boolean.valueOf(lactoseBool));
             json.put("smoking", Boolean.valueOf(smokeBool));
             json.put("wifi", Boolean.valueOf(wifiBool));
             json.put("picture","http://temp.zocalo.com.mx/galerias/bc5418699b2beba/fotos/bc5418699b2e31e_Captura-de-pantalla-2014-09-16-a-las-10.31.06.jpg");
-
 
         } catch (JSONException e) {
             e.printStackTrace();

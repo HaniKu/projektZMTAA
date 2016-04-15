@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -28,6 +29,9 @@ public class EditItem extends AppCompatActivity {
     private static final String TAG = "MyActivity";
     private Button save;
     String cities;
+    String objectID;
+    String Url;
+    Integer category;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +44,7 @@ public class EditItem extends AppCompatActivity {
 
         save.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
-                String URL = "https://api.backendless.com/v1/data/skuska?where=objectId%20%3D%20'"+cities+"'";
+                String URL = "https://api.backendless.com/v1/data/skuska/"+cities;
                 new POSTAsyncTask().execute(URL);
             }
         });
@@ -51,14 +55,15 @@ public class EditItem extends AppCompatActivity {
         EditText editText2 = (EditText) findViewById(R.id.editName);
         EditText editText4 = (EditText) findViewById(R.id.editText4);
         EditText editText5 = (EditText) findViewById(R.id.editText5);
-        EditText editText = (EditText) findViewById(R.id.editText);
+        Spinner editText = (Spinner) findViewById(R.id.editText);
+
         EditText wifi = (EditText) findViewById(R.id.wifi);
         EditText flukoza = (EditText) findViewById(R.id.glukoza);
         EditText lactoza = (EditText) findViewById(R.id.lactosa);
         EditText smoking = (EditText) findViewById(R.id.smoke);
         //  ArrayAdapter<String> adapter = new ArrayAdapter<String>();
         ArrayList<String> adapter = new ArrayList<String>();
-        final ArrayList<String> objectID = new ArrayList<String>();
+
         try {
             JSONObject jsonRootObject = new JSONObject(strJson);
 
@@ -71,12 +76,27 @@ public class EditItem extends AppCompatActivity {
 
                 editText2.setText(jsonObject.optString("name").toString());
                 editText4.setText(jsonObject.optString("adress").toString());
-                editText.setText(jsonObject.optString("openingHours").toString());
+                Integer otvaracka = Integer.parseInt(jsonObject.optString("openingHours").toString());
+                switch (otvaracka) {
+                    case 1:
+                        editText.setSelection(0);
+                        break;
+                    case 2:
+                        editText.setSelection(1);
+                        break;
+                    default:
+                        editText.setSelection(2);
+                        break;
+                }
                 editText5.setText(jsonObject.optString("phoneNumber").toString());
                 wifi.setText((jsonObject.optString("wifi").toString()));
                 smoking.setText((jsonObject.optString("smoking").toString()));
                  lactoza.setText((jsonObject.optString("lactoseFree").toString()));
                 flukoza.setText((jsonObject.optString("glutenFree").toString()));
+                objectID= (jsonObject.optString("objectId").toString());
+                Url = (jsonObject.optString("picture").toString());
+                Log.i(TAG, "url obrazka  "+Url);
+                //category = Integer.parseInt((jsonObject.optString("category").toString()));
             }
         } catch (JSONException e){
             e.printStackTrace();
@@ -113,21 +133,35 @@ public class EditItem extends AppCompatActivity {
         EditText flukoza = (EditText) findViewById(R.id.glukoza);
         EditText lactoza = (EditText) findViewById(R.id.lactosa);
         EditText smoking = (EditText) findViewById(R.id.smoke);
-        EditText editText3 = (EditText) findViewById(R.id.editText3);
         EditText editText4 = (EditText) findViewById(R.id.editText4);
         EditText editText5 = (EditText) findViewById(R.id.editText5);
-        EditText editText = (EditText) findViewById(R.id.editText);
+        Spinner editText = (Spinner) findViewById(R.id.editText);
         EditText editText2 = (EditText) findViewById(R.id.editName);
+        Integer edittext31;
+        String edittext12 = editText.getSelectedItem().toString();
+        switch (edittext12) {
+            case "nonstop":
+                edittext31 = 1; // they are executed if variable == c1
+                break;
+            case "closed":
+                edittext31 = 2; // they are executed if variable == c2
+                break;
+            default:
+                edittext31 = 3; // they are executed if none of the above case is satisfied
+                break;
+        }
 
         try {
             json.put("name", String.valueOf(editText2.getText().toString()));
             json.put("adress", String.valueOf(editText4.getText().toString()));
             json.put("phoneNumber", String.valueOf(editText5.getText().toString()));
-            json.put("openingHours", String.valueOf(editText.getText().toString()));
+            json.put("openingHours", Integer.valueOf(edittext31));
             json.put("glutenFree", Boolean.valueOf(flukoza.getText().toString()));
             json.put("lactoseFree", Boolean.valueOf(lactoza.getText().toString()));
             json.put("smoking", Boolean.valueOf(smoking.getText().toString()));
             json.put("wifi", Boolean.valueOf(wifi.getText().toString()));
+            json.put("picture", Url);
+            json.put("objectId",cities);
             Log.i(TAG, "som v httpPOST za deklaraciami  ");
 
         } catch (JSONException e) {

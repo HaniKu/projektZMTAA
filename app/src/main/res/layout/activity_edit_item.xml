@@ -92,11 +92,12 @@
                     android:text="Opening Hours"
                     android:id="@+id/textView3" />
 
-                <EditText
+                <Spinner
                     android:layout_width="271dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/editText"
-                    android:inputType="none" />
+                    android:entries="@array/openingHourses"
+                    ></Spinner>
             </LinearLayout>
 
             <LinearLayout

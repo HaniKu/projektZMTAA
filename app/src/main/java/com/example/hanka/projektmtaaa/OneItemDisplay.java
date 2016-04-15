@@ -1,15 +1,17 @@
 package com.example.hanka.projektmtaaa;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -29,8 +31,9 @@ import java.util.ArrayList;
 
 public class OneItemDisplay extends AppCompatActivity {
     ListView List;
-     Button edit;
-    Button delete;
+    FloatingActionButton edit;
+    FloatingActionButton delete;
+    ImageView makePhotoBigger;
     String cities;
     private static final String TAG = "MyActivity";
     public String getPoleJson() {
@@ -46,33 +49,75 @@ public class OneItemDisplay extends AppCompatActivity {
      cities = getIntent().getStringExtra("");
 
         String skuska = "https://api.backendless.com/v1/data/skuska?where=objectId%20%3D%20'"+cities+"'";
-        Log.d("skuska","som tu");
+        Log.d("skuska", "som tu");
         new HttpAsyncTask().execute(skuska);
         if (isConnected());
 
-        edit = (Button) findViewById(R.id.edit);
+        edit = (FloatingActionButton) findViewById(R.id.edit);
         edit.setOnClickListener(new View.OnClickListener()
+
+        {
+            public void onClick(View arg0) {
+                Log.i(TAG, "pole pred novou aktivitou" + getPoleJson());
+                Intent myIntent = new Intent(OneItemDisplay.this,
+                        EditItem.class);
+                myIntent.putExtra("", getPoleJson());
+                myIntent.putExtra("id", cities);
+                startActivity(myIntent);
+            }
+        });
+
+        delete = (FloatingActionButton) findViewById(R.id.delete);
+        delete.setOnClickListener(new View.OnClickListener()
+
+        {
+            public void onClick (View arg0){
+                AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(
+                        OneItemDisplay.this);
+
+// Setting Dialog Title
+                alertDialog2.setTitle("Confirm Delete...");
+
+// Setting Dialog Message
+                alertDialog2.setMessage("Are you sure you want delete this file?");
+
+// Setting Icon to Dialog
+              //  alertDialog2.setIcon(R.drawable.delete);
+
+// Setting Positive "Yes" Btn
+                alertDialog2.setPositiveButton("YES",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                DeleteItem delete = new DeleteItem(cities);
+                                Toast.makeText(getBaseContext(), "Deleted!", Toast.LENGTH_LONG).show();
+                                Intent a = new Intent(OneItemDisplay.this, Display.class);
+                                startActivity(a);
+                            }
+                        });
+
+// Setting Negative "NO" Btn
+                alertDialog2.setNegativeButton("NO",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+
+// Showing Alert Dialog
+                alertDialog2.show();
+            }
+        });
+
+        makePhotoBigger = (ImageView) findViewById(R.id.imageView);
+        makePhotoBigger.setOnClickListener(new View.OnClickListener()
 
         {
             public void onClick (View arg0){
                 Log.i(TAG, "pole pred novou aktivitou" + getPoleJson());
                 Intent myIntent = new Intent(OneItemDisplay.this,
-                        EditItem.class);
-                myIntent.putExtra("", getPoleJson());
-                myIntent.putExtra("id",cities);
+                        MakePhotoBigger.class);
+                myIntent.putExtra("", urlObrazka);
                 startActivity(myIntent);
-            }
-        });
-
-        delete = (Button) findViewById(R.id.delete);
-        delete.setOnClickListener(new View.OnClickListener()
-
-        {
-            public void onClick (View arg0){
-                DeleteItem delete = new DeleteItem(cities);
-                Toast.makeText(getBaseContext(), "Deleted!", Toast.LENGTH_LONG).show();
-                Intent a = new Intent(OneItemDisplay.this, Display.class);
-                startActivity(a);
             }
         });
     }
@@ -154,17 +199,42 @@ public class OneItemDisplay extends AppCompatActivity {
             for(int i=0; i < jsonArray.length(); i++){
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
+                Integer kategoria = Integer.parseInt(jsonObject.optString("category").toString());
+                String kategory;
+                switch (kategoria) {
+                    case 1:
+                        kategory = "bakery cafe";
+                        break;
+                    case 2:
+                        kategory = "cafe";
+                        break;
+                    default:
+                        kategory = "coffee to go";
+                        break;
+                }
                 String meno = jsonObject.optString("name").toString();
                 String adress = jsonObject.optString("adress").toString();
-                String openingHours = jsonObject.optString("openingHours").toString();
-                String phoneNumber = jsonObject.optString("phoneNumber").toString();
+                Integer openingHours = Integer.parseInt(jsonObject.optString("openingHours").toString());
+                String phoneNumber = (jsonObject.optString("phoneNumber").toString());
+                String cislo;
+                switch (openingHours) {
+                    case 1:
+                        cislo = "nonstop";
+                        break;
+                    case 2:
+                        cislo = "closed";
+                        break;
+                    default:
+                        cislo = "from 10 to 20";
+                        break;
+                }
                 boolean wifi = Boolean.parseBoolean(jsonObject.optString("wifi").toString());
                 boolean smoking = Boolean.parseBoolean(jsonObject.optString("smoking").toString());
                 boolean lactoseFree = Boolean.parseBoolean(jsonObject.optString("lactoseFree").toString());
                 boolean glutenFree = Boolean.parseBoolean(jsonObject.optString("glutenFree").toString());
                 urlObrazka = jsonObject.optString("picture").toString();
                 Log.d(TAG,urlObrazka);
-                String infro =" \n name= "+ meno +" \n adress= "+ adress +" \n " + " \n opening hours= "+ openingHours +" \n phone Number= "+ phoneNumber +" \n "+" \n wifi= "+ wifi +" \n " + " \n smoking= "+ smoking +" \n lactoseFree = "+ lactoseFree +" \n "+" \n glutenFree= "+ glutenFree +" \n " ;
+                String infro ="typ predajne= "+kategory+" \n name= "+ meno +" \n adress= "+ adress +" \n " + " \n opening hours= "+ cislo +" \n phone Number= "+ phoneNumber +" \n "+" \n wifi= "+ wifi +" \n " + " \n smoking= "+ smoking +" \n lactoseFree = "+ lactoseFree +" \n "+" \n glutenFree= "+ glutenFree +" \n " ;
                 adapter.add(infro);
             }
         } catch (JSONException e){

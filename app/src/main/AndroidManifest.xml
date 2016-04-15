@@ -39,7 +39,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".CreateNewItem" />
-        <activity android:name=".EditItem"></activity>
+        <activity android:name=".EditItem" />
+        <activity android:name=".MakePhotoBigger"></activity>
     </application>
 
 </manifest>

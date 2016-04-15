@@ -2,4 +2,36 @@
     <string name="app_name">Projektmtaaa</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_display">Display</string>
+
+    <string-array name="categories">
+        <item>Bakery cafe</item>
+        <item>Cafe</item>
+        <item>Coffee to go</item>
+    </string-array>
+
+    <string-array name="openingHourses">
+        <item>nonstop</item>
+        <item>closed</item>
+        <item>from 10 to 20</item>
+    </string-array>
+
+    <string-array name="wifi">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+
+    <string-array name="glutenFree">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+
+    <string-array name="lactoseFree">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
+
+    <string-array name="smoking">
+        <item>Yes</item>
+        <item>No</item>
+    </string-array>
 </resources>
