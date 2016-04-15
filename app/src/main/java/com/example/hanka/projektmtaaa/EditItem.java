@@ -57,10 +57,10 @@ public class EditItem extends AppCompatActivity {
         EditText editText5 = (EditText) findViewById(R.id.editText5);
         Spinner editText = (Spinner) findViewById(R.id.editText);
 
-        EditText wifi = (EditText) findViewById(R.id.wifi);
-        EditText flukoza = (EditText) findViewById(R.id.glukoza);
-        EditText lactoza = (EditText) findViewById(R.id.lactosa);
-        EditText smoking = (EditText) findViewById(R.id.smoke);
+        Spinner wifi = (Spinner) findViewById(R.id.wifi);
+        Spinner flukoza = (Spinner) findViewById(R.id.glukoza);
+        Spinner lactoza = (Spinner) findViewById(R.id.lactosa);
+        Spinner smoking = (Spinner) findViewById(R.id.smoke);
         //  ArrayAdapter<String> adapter = new ArrayAdapter<String>();
         ArrayList<String> adapter = new ArrayList<String>();
 
@@ -89,10 +89,42 @@ public class EditItem extends AppCompatActivity {
                         break;
                 }
                 editText5.setText(jsonObject.optString("phoneNumber").toString());
-                wifi.setText((jsonObject.optString("wifi").toString()));
-                smoking.setText((jsonObject.optString("smoking").toString()));
-                 lactoza.setText((jsonObject.optString("lactoseFree").toString()));
-                flukoza.setText((jsonObject.optString("glutenFree").toString()));
+                String wifi1 = ((jsonObject.optString("wifi").toString()));
+                switch(wifi1){
+                    case "true":
+                        wifi.setSelection(0);
+                        break;
+                    default:
+                        wifi.setSelection(1);
+                        break;
+                }
+                String smoking1 = ((jsonObject.optString("smoking").toString()));
+                switch(smoking1){
+                    case "true":
+                        smoking.setSelection(0);
+                        break;
+                    default:
+                        smoking.setSelection(1);
+                        break;
+                }
+                 String lactosa1 = ((jsonObject.optString("lactoseFree").toString()));
+                switch(lactosa1){
+                    case "true":
+                        lactoza.setSelection(0);
+                        break;
+                    default:
+                        lactoza.setSelection(1);
+                        break;
+                }
+                String flukoza1 = ((jsonObject.optString("glutenFree").toString()));
+                switch(flukoza1){
+                    case "true":
+                        flukoza.setSelection(0);
+                        break;
+                    default:
+                        flukoza.setSelection(1);
+                        break;
+                }
                 objectID= (jsonObject.optString("objectId").toString());
                 Url = (jsonObject.optString("picture").toString());
                 Log.i(TAG, "url obrazka  "+Url);
@@ -129,10 +161,50 @@ public class EditItem extends AppCompatActivity {
 
         JSONObject json = new JSONObject();
         HttpURLConnection conn = null;
-        EditText wifi = (EditText) findViewById(R.id.wifi);
-        EditText flukoza = (EditText) findViewById(R.id.glukoza);
-        EditText lactoza = (EditText) findViewById(R.id.lactosa);
-        EditText smoking = (EditText) findViewById(R.id.smoke);
+        Spinner wifi = (Spinner) findViewById(R.id.wifi);
+        String wifi12 = wifi.getSelectedItem().toString();
+        String hodnotaWifi;
+        switch(wifi12){
+            case "Yes":
+                hodnotaWifi = "true"; // they are executed if variable == c1
+                break;
+            default:
+                hodnotaWifi = "false"; // they are executed if variable == c1
+                break;
+        }
+        Spinner flukoza = (Spinner) findViewById(R.id.glukoza);
+        String flukoza12 = flukoza.getSelectedItem().toString();
+        String hodnotaFlukoza;
+        switch(flukoza12){
+            case "Yes":
+                hodnotaFlukoza = "true"; // they are executed if variable == c1
+                break;
+            default:
+                hodnotaFlukoza = "false"; // they are executed if variable == c1
+                break;
+        }
+        Spinner lactoza = (Spinner) findViewById(R.id.lactosa);
+        String lactoza12 = lactoza.getSelectedItem().toString();
+        String hodnotaLactoza;
+        switch(lactoza12){
+            case "Yes":
+                hodnotaLactoza = "true"; // they are executed if variable == c1
+                break;
+            default:
+                hodnotaLactoza = "false"; // they are executed if variable == c1
+                break;
+        }
+        Spinner smoking = (Spinner) findViewById(R.id.smoke);
+        String smoking12 = smoking.getSelectedItem().toString();
+        String hodnotaSmoking;
+        switch(smoking12){
+            case "Yes":
+                hodnotaSmoking = "true"; // they are executed if variable == c1
+                break;
+            default:
+                hodnotaSmoking = "false"; // they are executed if variable == c1
+                break;
+        }
         EditText editText4 = (EditText) findViewById(R.id.editText4);
         EditText editText5 = (EditText) findViewById(R.id.editText5);
         Spinner editText = (Spinner) findViewById(R.id.editText);
@@ -156,10 +228,10 @@ public class EditItem extends AppCompatActivity {
             json.put("adress", String.valueOf(editText4.getText().toString()));
             json.put("phoneNumber", String.valueOf(editText5.getText().toString()));
             json.put("openingHours", Integer.valueOf(edittext31));
-            json.put("glutenFree", Boolean.valueOf(flukoza.getText().toString()));
-            json.put("lactoseFree", Boolean.valueOf(lactoza.getText().toString()));
-            json.put("smoking", Boolean.valueOf(smoking.getText().toString()));
-            json.put("wifi", Boolean.valueOf(wifi.getText().toString()));
+            json.put("glutenFree", Boolean.valueOf(hodnotaFlukoza));
+            json.put("lactoseFree", Boolean.valueOf(hodnotaLactoza));
+            json.put("smoking", Boolean.valueOf(hodnotaSmoking));
+            json.put("wifi", Boolean.valueOf(hodnotaWifi));
             json.put("picture", Url);
             json.put("objectId",cities);
             Log.i(TAG, "som v httpPOST za deklaraciami  ");

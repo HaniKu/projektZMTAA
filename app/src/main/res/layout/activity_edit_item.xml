@@ -114,11 +114,12 @@
                     android:gravity="center_vertical"
                     android:id="@+id/textView12" />
 
-                <EditText
+                <Spinner
                     android:layout_width="172dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:id="@+id/wifi"
-                    android:inputType="none" />
+                    android:entries="@array/wifi"
+                    ></Spinner>
 
             </LinearLayout>
             <View style="@style/Divider"/>
@@ -137,11 +138,12 @@
                     android:gravity="center_vertical"
                     android:id="@+id/textView13" />
 
-                <EditText
+                <Spinner
                     android:layout_width="172dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/smoke"
-                    android:inputType="none" />
+                    android:entries="@array/smoking"
+                    ></Spinner>
 
             </LinearLayout>
             <View style="@style/Divider"/>
@@ -160,11 +162,12 @@
                     android:gravity="center_vertical"
                     android:id="@+id/textView14" />
 
-                <EditText
+                <Spinner
                     android:layout_width="172dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/lactosa"
-                    android:inputType="none" />
+                    android:entries="@array/lactoseFree"
+                    ></Spinner>
 
             </LinearLayout>
             <View style="@style/Divider"/>
@@ -183,11 +186,12 @@
                     android:gravity="center_vertical"
                     android:id="@+id/textView15" />
 
-                <EditText
+                <Spinner
                     android:layout_width="172dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/glukoza"
-                    android:inputType="none" />
+                    android:entries="@array/glutenFree"
+                    ></Spinner>
 
             </LinearLayout>
             <LinearLayout
