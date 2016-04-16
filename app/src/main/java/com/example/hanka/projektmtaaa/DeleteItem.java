@@ -17,7 +17,6 @@ public class DeleteItem extends AppCompatActivity {
     private static final String TAG = "MyActivity";
     private String url = "https://api.backendless.com/v1/data/skuska/";
     private String id = null;
-
     public DeleteItem(String id) {
         this.id = id;
         new DELETEAsyncTask().execute(id);
@@ -35,10 +34,13 @@ public class DeleteItem extends AppCompatActivity {
             }
             return "Nic";
         }
+
+        protected void onPreExecute(){
+
+        }
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-//           Toast.makeText(getBaseContext(), "Sent!", Toast.LENGTH_LONG).show();
         }
     }
 

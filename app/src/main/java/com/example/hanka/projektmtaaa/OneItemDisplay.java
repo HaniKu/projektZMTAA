@@ -46,8 +46,8 @@ public class OneItemDisplay extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_one_item_display);
         List = (ListView) findViewById(R.id.textik);
-     cities = getIntent().getStringExtra("");
-
+        cities = getIntent().getStringExtra("");
+        Log.d(TAG, "idecko je "+cities);
         String skuska = "https://api.backendless.com/v1/data/skuska?where=objectId%20%3D%20'"+cities+"'";
         Log.d("skuska", "som tu");
         new HttpAsyncTask().execute(skuska);
@@ -63,7 +63,19 @@ public class OneItemDisplay extends AppCompatActivity {
                         EditItem.class);
                 myIntent.putExtra("", getPoleJson());
                 myIntent.putExtra("id", cities);
-                startActivity(myIntent);
+                if(isConnected()) {
+                    startActivity(myIntent);
+                }else{
+                    AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(OneItemDisplay.this);
+                    alertDialog2.setTitle("No Internet connection");
+                    alertDialog2.setPositiveButton("OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            });
+                    alertDialog2.show();
+                }
             }
         });
 
@@ -74,36 +86,36 @@ public class OneItemDisplay extends AppCompatActivity {
             public void onClick (View arg0){
                 AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(
                         OneItemDisplay.this);
-
-// Setting Dialog Title
                 alertDialog2.setTitle("Confirm Delete...");
-
-// Setting Dialog Message
                 alertDialog2.setMessage("Are you sure you want delete this file?");
-
-// Setting Icon to Dialog
-              //  alertDialog2.setIcon(R.drawable.delete);
-
-// Setting Positive "Yes" Btn
                 alertDialog2.setPositiveButton("YES",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 DeleteItem delete = new DeleteItem(cities);
-                                Toast.makeText(getBaseContext(), "Deleted!", Toast.LENGTH_LONG).show();
                                 Intent a = new Intent(OneItemDisplay.this, Display.class);
-                                startActivity(a);
+                                if(isConnected()) {
+                                    Toast.makeText(getBaseContext(), "Deleted!", Toast.LENGTH_LONG).show();
+                                    startActivity(a);
+                                }else{
+                                    AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(OneItemDisplay.this);
+                                    alertDialog2.setTitle("No Internet connection");
+                                    alertDialog2.setPositiveButton("OK",
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int which) {
+                                                    dialog.cancel();
+                                                }
+                                            });
+                                    alertDialog2.show();
+                                }
+
                             }
                         });
-
-// Setting Negative "NO" Btn
                 alertDialog2.setNegativeButton("NO",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.cancel();
                             }
                         });
-
-// Showing Alert Dialog
                 alertDialog2.show();
             }
         });
@@ -117,6 +129,7 @@ public class OneItemDisplay extends AppCompatActivity {
                 Intent myIntent = new Intent(OneItemDisplay.this,
                         MakePhotoBigger.class);
                 myIntent.putExtra("", urlObrazka);
+                myIntent.putExtra("id", cities);
                 startActivity(myIntent);
             }
         });
@@ -160,7 +173,8 @@ public class OneItemDisplay extends AppCompatActivity {
         }
         else
         {
-            Toast.makeText(getBaseContext(), "no internet connection!", Toast.LENGTH_LONG).show();
+
+           // Toast.makeText(getBaseContext(), "no internet connection!", Toast.LENGTH_LONG).show();
             return false;
         }
 
@@ -234,7 +248,7 @@ public class OneItemDisplay extends AppCompatActivity {
                 boolean glutenFree = Boolean.parseBoolean(jsonObject.optString("glutenFree").toString());
                 urlObrazka = jsonObject.optString("picture").toString();
                 Log.d(TAG,urlObrazka);
-                String infro ="typ predajne= "+kategory+" \n name= "+ meno +" \n adress= "+ adress +" \n " + " \n opening hours= "+ cislo +" \n phone Number= "+ phoneNumber +" \n "+" \n wifi= "+ wifi +" \n " + " \n smoking= "+ smoking +" \n lactoseFree = "+ lactoseFree +" \n "+" \n glutenFree= "+ glutenFree +" \n " ;
+                String infro ="\n type: "+kategory+" \n " +" \n name: "+ meno +" \n " +" \n adress: "+ adress +" \n " + " \n opening hours: "+ cislo +" \n " +" \n phone Number: "+ phoneNumber +" \n "+" \n wifi: "+ wifi +" \n " + " \n smoking: "+ smoking +" \n " +" \n lactoseFree: "+ lactoseFree +" \n "+" \n glutenFree: "+ glutenFree +" \n " ;
                 adapter.add(infro);
             }
         } catch (JSONException e){

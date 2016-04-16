@@ -3,10 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.example.hanka.projektmtaaa.OneItemDisplay">
 
     <LinearLayout
@@ -22,7 +19,8 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="192dp"
-            android:weightSum="1">
+            android:weightSum="1"
+            android:background="#ce93d8">
 
             <ImageView
                 android:layout_width="166dp"
@@ -53,6 +51,7 @@
                             android:layout_height="wrap_content"
                             android:text="Edit"
                             android:id="@+id/edit"
+                            app:backgroundTint="#196daf"
                             android:src="@drawable/ic_edit_white_24dp" />
 
                         <android.support.design.widget.FloatingActionButton
@@ -61,6 +60,7 @@
                             android:layout_gravity="bottom"
                             android:id="@+id/delete"
                             android:clickable="true"
+                            app:backgroundTint="#196daf"
                             android:src="@drawable/ic_delete_white_24dp" />
 
                     </LinearLayout>
@@ -69,11 +69,15 @@
             </LinearLayout>
 
         </LinearLayout>
-
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/black" />
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="#e8f3f7">
 
             <ListView
                 android:layout_width="match_parent"

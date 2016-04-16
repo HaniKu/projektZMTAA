@@ -1,18 +1,20 @@
 package com.example.hanka.projektmtaaa;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,17 +29,16 @@ import java.util.ArrayList;
 
 public class Display extends AppCompatActivity {
     ListView List;
-    Button pridatNovy;
-
+    FloatingActionButton pridatNovy;
+    private ProgressDialog pdia;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
         List = (ListView) findViewById(R.id.textak);
-        pridatNovy = (Button) findViewById(R.id.pridatNovy);
-        new HttpAsyncTask().execute("https://api.backendless.com/v1/data/skuska?pageSize=100");
+        pridatNovy = (FloatingActionButton) findViewById(R.id.pridatNovy);
+        new HttpAsyncTask().execute("https://api.backendless.com/v1/data/skuska?pageSize=100&where=category%20in%20(1%2C2%2C3)%20and%20openingHours%20in%20(1%2C2%2C3)");
         if (isConnected()) ;
-
 
         pridatNovy.setOnClickListener(new View.OnClickListener()
 
@@ -45,7 +46,19 @@ public class Display extends AppCompatActivity {
             public void onClick (View arg0){
                 Intent myIntent = new Intent(Display.this,
                         CreateNewItem.class);
-                startActivity(myIntent);
+                if(isConnected()) {
+                    startActivity(myIntent);
+                }else{
+                    AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(Display.this);
+                    alertDialog2.setTitle("No Internet connection");
+                    alertDialog2.setPositiveButton("OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            });
+                    alertDialog2.show();
+                }
             }
         });
     }
@@ -84,10 +97,21 @@ public class Display extends AppCompatActivity {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
-            Toast.makeText(getBaseContext(), "you are connected!", Toast.LENGTH_LONG).show();
             return true;
         } else {
-            Toast.makeText(getBaseContext(), "no internet connection!", Toast.LENGTH_LONG).show();
+
+            AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(Display.this);
+            alertDialog2.setTitle("No Internet connection");
+            alertDialog2.setPositiveButton("OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent a = new Intent(Display.this, MainActivity.class);
+                            startActivity(a);
+                        }
+
+
+                    });
+            alertDialog2.show();
             return false;
         }
 
@@ -105,13 +129,19 @@ public class Display extends AppCompatActivity {
             return "";
         }
 
-        // onPostExecute displays the results of the AsyncTask.
+        protected void onPreExecute(){
+            super.onPreExecute();
+            pdia = new ProgressDialog(Display.this,R.style.AppTheme_NoActionBar);
+            pdia.setMessage("Loading...");
+            pdia.show();
+
+        }
+
         @Override
         protected void onPostExecute(String result) {
-            //  Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
-            //  List.setText(result);
             Log.d("skuska", result);
             vypisJson(result);
+            pdia.dismiss();
         }
     }
 
@@ -129,13 +159,10 @@ public class Display extends AppCompatActivity {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                // int id = Integer.parseInt(jsonObject.optString("category").toString());
                 String adress = jsonObject.optString("adress").toString();
                 String meno = jsonObject.optString("name").toString();
                 String id = jsonObject.optString("objectId").toString();
-                //  boolean wifi = Boolean.parseBoolean(jsonObject.optString("wifi").toString());
-
-                String infro = " \n name= " + meno + " \n adress= " + adress + " \n ";
+                String infro = " \n name: " + meno + " \n adress: " + adress + " \n ";
 
                 adapter.add(infro);
                 objectID.add(id);
@@ -143,26 +170,32 @@ public class Display extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        // Log.d("log", String.valueOf(objectID));
         ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, adapter);
         List.setAdapter(adapter1);
 
         List.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //  Log.d("log", String.valueOf(objectID));
                 Intent newActivity = new Intent(Display.this, OneItemDisplay.class);
                 String cities = String.valueOf(parent.getItemAtPosition(position));
                 String idecko = objectID.get(position);
                 Log.d("log", objectID.get(position));
                 newActivity.putExtra("", idecko);
-                startActivity(newActivity);
-
-
+                if ((isConnected())){
+                    startActivity(newActivity);
+                }else{
+                    AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(Display.this);
+                    alertDialog2.setTitle("No Internet connection");
+                    alertDialog2.setPositiveButton("OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent a = new Intent(Display.this, Display.class);
+                                    startActivity(a);
+                                }
+                            });
+                    alertDialog2.show();
+                }
             }
         });
-
-
     }
-
 }

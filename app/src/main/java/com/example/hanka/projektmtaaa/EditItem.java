@@ -1,6 +1,11 @@
 package com.example.hanka.projektmtaaa;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -9,7 +14,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,6 +36,7 @@ public class EditItem extends AppCompatActivity {
     String objectID;
     String Url;
     Integer category;
+    ProgressDialog pdia;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,7 +50,21 @@ public class EditItem extends AppCompatActivity {
         save.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
                 String URL = "https://api.backendless.com/v1/data/skuska/"+cities;
-                new POSTAsyncTask().execute(URL);
+
+                if(isConnected()) {
+                    new POSTAsyncTask().execute(URL);
+                }else{
+                    AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(EditItem.this);
+                    alertDialog2.setTitle("No Internet connection");
+                    alertDialog2.setPositiveButton("OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            });
+                    alertDialog2.show();
+                }
+
             }
         });
     }
@@ -146,12 +165,28 @@ public class EditItem extends AppCompatActivity {
             }
             return "Nic";
         }
+
+        protected void onPreExecute(){
+            super.onPreExecute();
+            pdia = new ProgressDialog(EditItem.this, R.style.AppTheme_NoActionBar);
+            pdia.setMessage("Editing...");
+            pdia.show();
+
+        }
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            Toast.makeText(getBaseContext(), "Sent!", Toast.LENGTH_LONG).show();
-            Intent a = new Intent(EditItem.this, Display.class);
-            startActivity(a);
+            if (result.equals("ahoj")){
+                showAlert();
+            }
+            if (result.equals("bad number")){
+                showAlert1();
+            }
+            else {
+                Intent a = new Intent(EditItem.this, Display.class);
+                startActivity(a);
+                pdia.dismiss();
+            }
         }
 
     }
@@ -222,76 +257,121 @@ public class EditItem extends AppCompatActivity {
                 edittext31 = 3; // they are executed if none of the above case is satisfied
                 break;
         }
-
-        try {
-            json.put("name", String.valueOf(editText2.getText().toString()));
-            json.put("adress", String.valueOf(editText4.getText().toString()));
-            json.put("phoneNumber", String.valueOf(editText5.getText().toString()));
-            json.put("openingHours", Integer.valueOf(edittext31));
-            json.put("glutenFree", Boolean.valueOf(hodnotaFlukoza));
-            json.put("lactoseFree", Boolean.valueOf(hodnotaLactoza));
-            json.put("smoking", Boolean.valueOf(hodnotaSmoking));
-            json.put("wifi", Boolean.valueOf(hodnotaWifi));
-            json.put("picture", Url);
-            json.put("objectId",cities);
-            Log.i(TAG, "som v httpPOST za deklaraciami  ");
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        try{
-            URL url = new URL(urlStr);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            conn.setRequestMethod("PUT");
-            conn.addRequestProperty("application-ID", "CCB8E7ED-C40B-4D67-FF14-5FD1DC41F500");
-            conn.addRequestProperty("secret-key", "A92106B5-AACE-6ACD-FF2A-9F2F83830600");
-            conn.addRequestProperty("Content-Type", "application/json");
-            conn.addRequestProperty("application-type", "REST");
-            OutputStreamWriter outs  = new OutputStreamWriter(conn.getOutputStream());
-            Log.i(TAG, "SENDING: " + json.toString());
-            outs.write(json.toString());
-            outs.flush();
-            outs.close();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        String isPhone = "^[0-9]{4}\\-?[0-9]{3}\\-?[0-9]{3}$";
+        if (editText5.getText().toString().matches(isPhone)){
+            Log.i(TAG,"is phone numer OK");
+            return "bad number";
         }
 
-        if (conn.getResponseCode() == 403) {
-            Log.i(TAG, "server reached; but access denied");
-        }
-        else if (conn.getResponseCode() == 404) {
-            Log.i(TAG, "unknown URL");
-        }
-        else if (conn.getResponseCode() == 200) {
-            Log.i(TAG, "request successfull");
+        if (editText5.getText().toString().equals("") || editText4.getText().toString().equals("") || editText2.getText().toString().equals("") ) {
+            Log.i(TAG, "jedno je null");
+            return "ahoj";
         }
         else {
-            Log.i(TAG,(String.valueOf(conn.getResponseCode())));
-            Log.i(TAG, "error http response");
-            Log.i(TAG,"error stream: "+conn.getErrorStream().toString());
-            Log.i(TAG,conn.getResponseMessage().toString());
+            try {
+                json.put("name", String.valueOf(editText2.getText().toString()));
+                json.put("adress", String.valueOf(editText4.getText().toString()));
+                json.put("phoneNumber", String.valueOf(editText5.getText().toString()));
+                json.put("openingHours", Integer.valueOf(edittext31));
+                json.put("glutenFree", Boolean.valueOf(hodnotaFlukoza));
+                json.put("lactoseFree", Boolean.valueOf(hodnotaLactoza));
+                json.put("smoking", Boolean.valueOf(hodnotaSmoking));
+                json.put("wifi", Boolean.valueOf(hodnotaWifi));
+                json.put("picture", Url);
+                json.put("objectId", cities);
+                Log.i(TAG, "som v httpPOST za deklaraciami  ");
 
-            throw new IOException(conn.getResponseMessage());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            try {
+                URL url = new URL(urlStr);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setDoOutput(true);
+                conn.setDoInput(true);
+                conn.setRequestMethod("PUT");
+                conn.addRequestProperty("application-ID", "CCB8E7ED-C40B-4D67-FF14-5FD1DC41F500");
+                conn.addRequestProperty("secret-key", "A92106B5-AACE-6ACD-FF2A-9F2F83830600");
+                conn.addRequestProperty("Content-Type", "application/json");
+                conn.addRequestProperty("application-type", "REST");
+                OutputStreamWriter outs = new OutputStreamWriter(conn.getOutputStream());
+                Log.i(TAG, "SENDING: " + json.toString());
+                outs.write(json.toString());
+                outs.flush();
+                outs.close();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (ProtocolException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            if (conn.getResponseCode() == 403) {
+                Log.i(TAG, "server reached; but access denied");
+            } else if (conn.getResponseCode() == 404) {
+                Log.i(TAG, "unknown URL");
+            } else if (conn.getResponseCode() == 200) {
+                Log.i(TAG, "request successfull");
+            } else {
+                Log.i(TAG, (String.valueOf(conn.getResponseCode())));
+                Log.i(TAG, "error http response");
+                Log.i(TAG, "error stream: " + conn.getErrorStream().toString());
+                Log.i(TAG, conn.getResponseMessage().toString());
+
+                throw new IOException(conn.getResponseMessage());
+            }
+
+
+            // Buffer the result into a string
+            BufferedReader rd = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = rd.readLine()) != null) {
+                sb.append(line);
+            }
+            rd.close();
+
+            conn.disconnect();
+            return sb.toString();
+        }
+    }
+
+    public boolean isConnected()            //zistujem ci som online
+    {
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            // Toast.makeText(getBaseContext(), "you are connected!", Toast.LENGTH_LONG).show();
+            return true;
+        } else {
+            return false;
         }
 
+    }
 
-        // Buffer the result into a string
-        BufferedReader rd = new BufferedReader(
-                new InputStreamReader(conn.getInputStream()));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = rd.readLine()) != null) {
-            sb.append(line);
-        }
-        rd.close();
-
-        conn.disconnect();
-        return sb.toString();
+    public void showAlert(){
+        AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(EditItem.this);
+        alertDialog2.setTitle("Invalid data");
+        alertDialog2.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        alertDialog2.show();
+    }
+    public void showAlert1(){
+        AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(EditItem.this);
+        alertDialog2.setTitle("Uncorrect phone number");
+        alertDialog2.setMessage("the correct format is 09xx xxx xxx");
+        alertDialog2.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        alertDialog2.show();
     }
 }

@@ -141,23 +141,23 @@
                     android:id="@+id/textView12" />
 
                 <RadioGroup
-                    android:layout_width="173dp"
+                    android:layout_width="222dp"
                     android:layout_height="match_parent"
                     android:orientation="horizontal"
                     android:id="@+id/radioGroup1">
 
                     <RadioButton
                         android:id="@+id/radioButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="24dp"
-                        android:text="TRUE"
+                        android:layout_width="101dp"
+                        android:layout_height="wrap_content"
+                        android:text="Yes"
                         android:layout_weight="0.20" />
 
                     <RadioButton
                         android:id="@+id/radioButton2"
-                        android:layout_width="wrap_content"
+                        android:layout_width="112dp"
                         android:layout_height="wrap_content"
-                        android:text="FALSE"
+                        android:text="No"
                         android:checked="false" />
                 </RadioGroup>
             </LinearLayout>
@@ -186,14 +186,14 @@
                 <RadioButton
                     android:layout_width="101dp"
                     android:layout_height="wrap_content"
-                    android:text="TRUE"
+                    android:text="Yes"
                     android:id="@+id/radioButton11"
                     android:checked="false" />
 
                 <RadioButton
                     android:layout_width="112dp"
                     android:layout_height="wrap_content"
-                    android:text="FALSE"
+                    android:text="No"
                     android:id="@+id/radioButton12"
                     android:checked="false" />
                 </RadioGroup>
@@ -223,14 +223,14 @@
                 <RadioButton
                     android:layout_width="101dp"
                     android:layout_height="wrap_content"
-                    android:text="TRUE"
+                    android:text="Yes"
                     android:id="@+id/radioButton13"
                     android:checked="false" />
 
                 <RadioButton
                     android:layout_width="112dp"
                     android:layout_height="wrap_content"
-                    android:text="FALSE"
+                    android:text="No"
                     android:id="@+id/radioButton14"
                     android:checked="false" />
                 </RadioGroup>
@@ -259,14 +259,14 @@
                 <RadioButton
                     android:layout_width="101dp"
                     android:layout_height="wrap_content"
-                    android:text="TRUE"
+                    android:text="Yes"
                     android:id="@+id/radioButton15"
                     android:checked="false" />
 
                 <RadioButton
                     android:layout_width="112dp"
                     android:layout_height="wrap_content"
-                    android:text="FALSE"
+                    android:text="No"
                     android:id="@+id/radioButton16"
                     android:checked="false" />
             </RadioGroup>
@@ -276,12 +276,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:weightSum="1" >
-
-                <Button
-                    android:layout_width="111dp"
-                    android:layout_height="wrap_content"
-                    android:text="Cancel"
-                    android:id="@+id/cancel" />
 
                 <Button
                     android:layout_width="111dp"

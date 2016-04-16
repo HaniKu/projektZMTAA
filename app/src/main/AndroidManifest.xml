@@ -38,9 +38,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CreateNewItem" />
-        <activity android:name=".EditItem" />
-        <activity android:name=".MakePhotoBigger"></activity>
+        <activity android:name=".CreateNewItem"
+            android:label="@string/createNewItem"/>
+        <activity android:name=".EditItem"
+            android:label="@string/editItem"/>
+        <activity android:name=".MakePhotoBigger"
+            android:label="@string/Picture"></activity>
     </application>
 
 </manifest>
