@@ -30,22 +30,47 @@ import java.util.ArrayList;
 public class Display extends AppCompatActivity {
     ListView List;
     FloatingActionButton pridatNovy;
+    FloatingActionButton refresh;
     private ProgressDialog pdia;
+    private static final String TAG = "MyActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
         List = (ListView) findViewById(R.id.textak);
+        refresh = (FloatingActionButton) findViewById(R.id.refresh);
         pridatNovy = (FloatingActionButton) findViewById(R.id.pridatNovy);
-        new HttpAsyncTask().execute("https://api.backendless.com/v1/data/skuska?pageSize=100&where=category%20in%20(1%2C2%2C3)%20and%20openingHours%20in%20(1%2C2%2C3)");
-        if (isConnected()) ;
-
+        String skuska = "https://api.backendless.com/v1/data/skuska?where=category%20in%20(1%2C2%2C3)%20and%20openingHours%20in%20(1%2C2%2C3)";
+        if(isConnected()) {
+            new HttpAsyncTask().execute(skuska);
+        }
         pridatNovy.setOnClickListener(new View.OnClickListener()
 
         {
             public void onClick (View arg0){
                 Intent myIntent = new Intent(Display.this,
                         CreateNewItem.class);
+                if(isConnected()) {
+                    startActivity(myIntent);
+                }else{
+                    AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(Display.this);
+                    alertDialog2.setTitle("No Internet connection");
+                    alertDialog2.setPositiveButton("OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            });
+                    alertDialog2.show();
+                }
+            }
+        });
+
+        refresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent myIntent = new Intent(Display.this,
+                        Display.class);
                 if(isConnected()) {
                     startActivity(myIntent);
                 }else{
@@ -88,6 +113,7 @@ public class Display extends AppCompatActivity {
         rd.close();
 
         conn.disconnect();
+        Log.d(TAG, "poslat rozaprsovat  " + sb.toString());
         return sb.toString();
     }
 
@@ -122,11 +148,12 @@ public class Display extends AppCompatActivity {
         protected String doInBackground(String... urls) {
 
             try {
+                Log.d(TAG, "idem cez url  "+(urls[0]));
                 return httpGET(urls[0]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return "";
+            return "ahoj";
         }
 
         protected void onPreExecute(){
@@ -136,12 +163,16 @@ public class Display extends AppCompatActivity {
             pdia.show();
 
         }
-
+        // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            Log.d("skuska", result);
-            vypisJson(result);
-            pdia.dismiss();
+            if(result.equals("ahoj")){
+                showAlert1();
+            }else {
+                Log.d(TAG, "rozaprsovat treba " + result);
+                pdia.dismiss();
+                vypisJson(result);
+            }
         }
     }
 
@@ -181,21 +212,43 @@ public class Display extends AppCompatActivity {
                 String idecko = objectID.get(position);
                 Log.d("log", objectID.get(position));
                 newActivity.putExtra("", idecko);
-                if ((isConnected())){
+                if ((isConnected())) {
                     startActivity(newActivity);
-                }else{
-                    AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(Display.this);
+                } else {
+                    final AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(Display.this);
                     alertDialog2.setTitle("No Internet connection");
                     alertDialog2.setPositiveButton("OK",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Intent a = new Intent(Display.this, Display.class);
-                                    startActivity(a);
+                                    dialog.cancel();
                                 }
                             });
                     alertDialog2.show();
                 }
             }
         });
+    }
+
+    public void showAlert1(){
+        AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(Display.this);
+        alertDialog2.setTitle("Uncorrect data");
+        alertDialog2.setMessage("stay on this activity?");
+        alertDialog2.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        alertDialog2.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent a = new Intent(Display.this, MainActivity.class);
+                        startActivity(a);
+                    }
+                });
+
+        alertDialog2.show();
     }
 }

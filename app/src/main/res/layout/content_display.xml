@@ -2,11 +2,13 @@
 <RelativeLayout
 
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
     style="@style/AppTheme"
-    tools:context="com.example.hanka.projektmtaaa.Display">
+    tools:context="com.example.hanka.projektmtaaa.Display"
+    android:background="#69cff2">
 
 
     <ListView
@@ -26,6 +28,17 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:src="@drawable/ic_add_black_24dp"/>
+        android:src="@drawable/ic_add_black_24dp"
+        android:tint="#ffffff"
+        app:backgroundTint="#196daf" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/refresh"
+        android:layout_alignBottom="@+id/pridatNovy"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/ic_refresh_white_24dp"
+        app:backgroundTint="#196daf" />
 
 </RelativeLayout>

@@ -166,11 +166,13 @@ public class EditItem extends AppCompatActivity {
             return "Nic";
         }
 
-        protected void onPreExecute(){
-            super.onPreExecute();
-            pdia = new ProgressDialog(EditItem.this, R.style.AppTheme_NoActionBar);
-            pdia.setMessage("Editing...");
-            pdia.show();
+        protected void onPreExecute(String result){
+            if(!(result == "ahoj" && result == "bad number")) {
+                super.onPreExecute();
+                pdia = new ProgressDialog(EditItem.this, R.style.AppTheme_NoActionBar);
+                pdia.setMessage("Editing...");
+                pdia.show();
+            }
 
         }
         // onPostExecute displays the results of the AsyncTask.
@@ -178,14 +180,14 @@ public class EditItem extends AppCompatActivity {
         protected void onPostExecute(String result) {
             if (result.equals("ahoj")){
                 showAlert();
-            }
-            if (result.equals("bad number")){
+            } else if (result.equals("bad number")){
                 showAlert1();
             }
             else {
                 Intent a = new Intent(EditItem.this, Display.class);
+                //pdia.dismiss();
                 startActivity(a);
-                pdia.dismiss();
+
             }
         }
 
@@ -257,85 +259,87 @@ public class EditItem extends AppCompatActivity {
                 edittext31 = 3; // they are executed if none of the above case is satisfied
                 break;
         }
-        String isPhone = "^[0-9]{4}\\-?[0-9]{3}\\-?[0-9]{3}$";
-        if (editText5.getText().toString().matches(isPhone)){
-            Log.i(TAG,"is phone numer OK");
-            return "bad number";
-        }
 
         if (editText5.getText().toString().equals("") || editText4.getText().toString().equals("") || editText2.getText().toString().equals("") ) {
             Log.i(TAG, "jedno je null");
             return "ahoj";
         }
         else {
-            try {
-                json.put("name", String.valueOf(editText2.getText().toString()));
-                json.put("adress", String.valueOf(editText4.getText().toString()));
-                json.put("phoneNumber", String.valueOf(editText5.getText().toString()));
-                json.put("openingHours", Integer.valueOf(edittext31));
-                json.put("glutenFree", Boolean.valueOf(hodnotaFlukoza));
-                json.put("lactoseFree", Boolean.valueOf(hodnotaLactoza));
-                json.put("smoking", Boolean.valueOf(hodnotaSmoking));
-                json.put("wifi", Boolean.valueOf(hodnotaWifi));
-                json.put("picture", Url);
-                json.put("objectId", cities);
-                Log.i(TAG, "som v httpPOST za deklaraciami  ");
 
-            } catch (JSONException e) {
-                e.printStackTrace();
+            String isPhone = "^[0-9]{4}\\-?[0-9]{3}\\-?[0-9]{3}$";
+            if (!(editText5.getText().toString().matches(isPhone))) {
+                Log.i(TAG, "is phone numer OK");
+                return "bad number";
+            } else{
+                    try {
+                        json.put("name", String.valueOf(editText2.getText().toString()));
+                        json.put("adress", String.valueOf(editText4.getText().toString()));
+                        json.put("phoneNumber", String.valueOf(editText5.getText().toString()));
+                        json.put("openingHours", Integer.valueOf(edittext31));
+                        json.put("glutenFree", Boolean.valueOf(hodnotaFlukoza));
+                        json.put("lactoseFree", Boolean.valueOf(hodnotaLactoza));
+                        json.put("smoking", Boolean.valueOf(hodnotaSmoking));
+                        json.put("wifi", Boolean.valueOf(hodnotaWifi));
+                        json.put("picture", Url);
+                        json.put("objectId", cities);
+                        Log.i(TAG, "som v httpPOST za deklaraciami  ");
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        URL url = new URL(urlStr);
+                        conn = (HttpURLConnection) url.openConnection();
+                        conn.setDoOutput(true);
+                        conn.setDoInput(true);
+                        conn.setRequestMethod("PUT");
+                        conn.addRequestProperty("application-ID", "CCB8E7ED-C40B-4D67-FF14-5FD1DC41F500");
+                        conn.addRequestProperty("secret-key", "A92106B5-AACE-6ACD-FF2A-9F2F83830600");
+                        conn.addRequestProperty("Content-Type", "application/json");
+                        conn.addRequestProperty("application-type", "REST");
+                        OutputStreamWriter outs = new OutputStreamWriter(conn.getOutputStream());
+                        Log.i(TAG, "SENDING: " + json.toString());
+                        outs.write(json.toString());
+                        outs.flush();
+                        outs.close();
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    } catch (ProtocolException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (conn.getResponseCode() == 403) {
+                        Log.i(TAG, "server reached; but access denied");
+                    } else if (conn.getResponseCode() == 404) {
+                        Log.i(TAG, "unknown URL");
+                    } else if (conn.getResponseCode() == 200) {
+                        Log.i(TAG, "request successfull");
+                    } else {
+                        Log.i(TAG, (String.valueOf(conn.getResponseCode())));
+                        Log.i(TAG, "error http response");
+                        Log.i(TAG, "error stream: " + conn.getErrorStream().toString());
+                        Log.i(TAG, conn.getResponseMessage().toString());
+
+                        throw new IOException(conn.getResponseMessage());
+                    }
+
+
+                    // Buffer the result into a string
+                    BufferedReader rd = new BufferedReader(
+                            new InputStreamReader(conn.getInputStream()));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = rd.readLine()) != null) {
+                        sb.append(line);
+                    }
+                    rd.close();
+
+                    conn.disconnect();
+                    return sb.toString();
+                }
             }
-            try {
-                URL url = new URL(urlStr);
-                conn = (HttpURLConnection) url.openConnection();
-                conn.setDoOutput(true);
-                conn.setDoInput(true);
-                conn.setRequestMethod("PUT");
-                conn.addRequestProperty("application-ID", "CCB8E7ED-C40B-4D67-FF14-5FD1DC41F500");
-                conn.addRequestProperty("secret-key", "A92106B5-AACE-6ACD-FF2A-9F2F83830600");
-                conn.addRequestProperty("Content-Type", "application/json");
-                conn.addRequestProperty("application-type", "REST");
-                OutputStreamWriter outs = new OutputStreamWriter(conn.getOutputStream());
-                Log.i(TAG, "SENDING: " + json.toString());
-                outs.write(json.toString());
-                outs.flush();
-                outs.close();
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (ProtocolException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            if (conn.getResponseCode() == 403) {
-                Log.i(TAG, "server reached; but access denied");
-            } else if (conn.getResponseCode() == 404) {
-                Log.i(TAG, "unknown URL");
-            } else if (conn.getResponseCode() == 200) {
-                Log.i(TAG, "request successfull");
-            } else {
-                Log.i(TAG, (String.valueOf(conn.getResponseCode())));
-                Log.i(TAG, "error http response");
-                Log.i(TAG, "error stream: " + conn.getErrorStream().toString());
-                Log.i(TAG, conn.getResponseMessage().toString());
-
-                throw new IOException(conn.getResponseMessage());
-            }
-
-
-            // Buffer the result into a string
-            BufferedReader rd = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream()));
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = rd.readLine()) != null) {
-                sb.append(line);
-            }
-            rd.close();
-
-            conn.disconnect();
-            return sb.toString();
-        }
     }
 
     public boolean isConnected()            //zistujem ci som online
@@ -348,7 +352,6 @@ public class EditItem extends AppCompatActivity {
         } else {
             return false;
         }
-
     }
 
     public void showAlert(){
@@ -365,7 +368,7 @@ public class EditItem extends AppCompatActivity {
     public void showAlert1(){
         AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(EditItem.this);
         alertDialog2.setTitle("Uncorrect phone number");
-        alertDialog2.setMessage("the correct format is 09xx xxx xxx");
+        alertDialog2.setMessage("the correct format is 09xxxxxxxx");
         alertDialog2.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {

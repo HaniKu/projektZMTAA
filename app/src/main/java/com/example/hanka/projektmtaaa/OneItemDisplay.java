@@ -243,12 +243,36 @@ public class OneItemDisplay extends AppCompatActivity {
                         break;
                 }
                 boolean wifi = Boolean.parseBoolean(jsonObject.optString("wifi").toString());
+                String wifibool;
+                if (wifi == true) {
+                    wifibool = "Yes";
+                } else {
+                    wifibool = "No";
+                }
                 boolean smoking = Boolean.parseBoolean(jsonObject.optString("smoking").toString());
+                String smokebool;
+                if (smoking == true) {
+                    smokebool = "Yes";
+                } else {
+                    smokebool = "No";
+                }
                 boolean lactoseFree = Boolean.parseBoolean(jsonObject.optString("lactoseFree").toString());
+                String lactabool;
+                if (lactoseFree == true) {
+                    lactabool = "Yes";
+                } else {
+                    lactabool = "No";
+                }
                 boolean glutenFree = Boolean.parseBoolean(jsonObject.optString("glutenFree").toString());
+                String glutenbool;
+                if (glutenFree == true) {
+                    glutenbool = "Yes";
+                } else {
+                    glutenbool = "No";
+                }
                 urlObrazka = jsonObject.optString("picture").toString();
                 Log.d(TAG,urlObrazka);
-                String infro ="\n type: "+kategory+" \n " +" \n name: "+ meno +" \n " +" \n adress: "+ adress +" \n " + " \n opening hours: "+ cislo +" \n " +" \n phone Number: "+ phoneNumber +" \n "+" \n wifi: "+ wifi +" \n " + " \n smoking: "+ smoking +" \n " +" \n lactoseFree: "+ lactoseFree +" \n "+" \n glutenFree: "+ glutenFree +" \n " ;
+                String infro ="\n type: "+kategory+" \n " +" \n name: "+ meno +" \n " +" \n adress: "+ adress +" \n " + " \n opening hours: "+ cislo +" \n " +" \n phone Number: "+ phoneNumber +" \n "+" \n wifi: "+ wifibool +" \n " + " \n smoking: "+ smokebool +" \n " +" \n lactoseFree: "+ lactabool +" \n "+" \n glutenFree: "+ glutenbool +" \n " ;
                 adapter.add(infro);
             }
         } catch (JSONException e){
