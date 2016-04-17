@@ -97,7 +97,7 @@
                     android:layout_width="95dp"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:text="Kontact"
+                    android:text="Contact"
                     android:id="@+id/textView11" />
 
                 <EditText

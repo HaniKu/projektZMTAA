@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Projektmtaaa</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_display">Display</string>
+    <string name="title_activity_display">All items</string>
     <string name="createNewItem">New Item</string>
     <string name="Picture">Picture</string>
     <string name="editItem">Edit Item</string>
