@@ -1,6 +1,7 @@
 package com.example.hanka.projektmtaaa;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -28,6 +29,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class OneItemDisplay extends AppCompatActivity {
     ListView List;
@@ -35,6 +38,7 @@ public class OneItemDisplay extends AppCompatActivity {
     FloatingActionButton delete;
     ImageView makePhotoBigger;
     String cities;
+    private ProgressDialog pdia;
     private static final String TAG = "MyActivity";
     public String getPoleJson() {
         return poleJson;
@@ -50,8 +54,9 @@ public class OneItemDisplay extends AppCompatActivity {
         Log.d(TAG, "idecko je "+cities);
         String skuska = "https://api.backendless.com/v1/data/skuska?where=objectId%20%3D%20'"+cities+"'";
         Log.d("skuska", "som tu");
-        new HttpAsyncTask().execute(skuska);
-        if (isConnected());
+        if(isConnected()) {
+            new HttpAsyncTask().execute(skuska);
+        }
 
         edit = (FloatingActionButton) findViewById(R.id.edit);
         edit.setOnClickListener(new View.OnClickListener()
@@ -170,32 +175,73 @@ public class OneItemDisplay extends AppCompatActivity {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             return true;
-        }
-        else
-        {
+        } else {
 
-           // Toast.makeText(getBaseContext(), "no internet connection!", Toast.LENGTH_LONG).show();
+            AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(OneItemDisplay.this);
+            alertDialog2.setTitle("No Internet connection");
+            alertDialog2.setPositiveButton("OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+
+
+                    });
+            alertDialog2.show();
             return false;
         }
 
     }
-    private class HttpAsyncTask extends AsyncTask<String, Void, String>
-    {       //thread na ziskanie url
+
+    class TaskKiller extends TimerTask {
+        private AsyncTask<?, ?, ?> mTask;
+        public TaskKiller(AsyncTask<?, ?, ?> task) {
+            this.mTask = task;
+        }
+
+        public void run() {
+            mTask.cancel(true);
+        }
+    }
+
+    private class HttpAsyncTask extends AsyncTask<String, Void, String> {       //thread na ziskanie url
         @Override
         protected String doInBackground(String... urls) {
 
+            Timer timer = new Timer();
+            timer.schedule(new TaskKiller(this), 7000);
+
             try {
+                Log.d(TAG, "idem cez url  " + (urls[0]));
                 return httpGET(urls[0]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return "";
+
+            timer.cancel();
+            return "ahoj";
         }
+
+        protected void onCancelled() {
+            //Toast.makeText(getBaseContext(), "LOADING CANCELLED", Toast.LENGTH_LONG).show();
+            Log.i(TAG, "**** cancelled ****");
+            pdia.dismiss();
+            //finish();
+            req_timed();
+        }
+
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pdia = new ProgressDialog(OneItemDisplay.this, R.style.AppTheme_NoActionBar);
+            pdia.setMessage("Loading...");
+            pdia.show();
+        }
+
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            Log.d("skuska",result);
-            vypisJson(result);
+                Log.d(TAG, "rozaprsovat treba " + result);
+                pdia.dismiss();
+                vypisJson(result);
         }
     }
 
@@ -283,5 +329,19 @@ public class OneItemDisplay extends AppCompatActivity {
         List.setAdapter(adapter1);
         ImageView imageView = (ImageView) findViewById(R.id.imageView);
         Picasso.with(this).load(urlObrazka).into(imageView);
+    }
+
+    public void req_timed(){
+        AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(OneItemDisplay.this);
+        alertDialog2.setTitle("LOADING CANCELLED");
+        alertDialog2.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent a = new Intent(OneItemDisplay.this, MainActivity.class);
+                        startActivity(a);
+                        dialog.cancel();
+                    }
+                });
+        alertDialog2.show();
     }
 }

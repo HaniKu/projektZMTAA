@@ -26,6 +26,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Display extends AppCompatActivity {
     ListView List;
@@ -131,8 +133,6 @@ public class Display extends AppCompatActivity {
             alertDialog2.setPositiveButton("OK",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            Intent a = new Intent(Display.this, MainActivity.class);
-                            startActivity(a);
                         }
 
 
@@ -143,9 +143,23 @@ public class Display extends AppCompatActivity {
 
     }
 
+    class TaskKiller extends TimerTask {
+        private AsyncTask<?, ?, ?> mTask;
+        public TaskKiller(AsyncTask<?, ?, ?> task) {
+            this.mTask = task;
+        }
+
+        public void run() {
+            mTask.cancel(true);
+        }
+    }
+
     private class HttpAsyncTask extends AsyncTask<String, Void, String> {       //thread na ziskanie url
         @Override
         protected String doInBackground(String... urls) {
+
+            Timer timer = new Timer();
+            timer.schedule(new TaskKiller(this), 7000);
 
             try {
                 Log.d(TAG, "idem cez url  "+(urls[0]));
@@ -153,15 +167,24 @@ public class Display extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            timer.cancel();
             return "ahoj";
         }
 
-        protected void onPreExecute(){
-            super.onPreExecute();
-            pdia = new ProgressDialog(Display.this,R.style.AppTheme_NoActionBar);
-            pdia.setMessage("Loading...");
-            pdia.show();
+        protected void onCancelled() {
+            //Toast.makeText(getBaseContext(), "LOADING CANCELLED", Toast.LENGTH_LONG).show();
+            Log.i(TAG, "**** cancelled ****");
+            pdia.dismiss();
+            //finish();
+            req_timed();
+        }
 
+        protected void onPreExecute(){
+                super.onPreExecute();
+                pdia = new ProgressDialog(Display.this, R.style.AppTheme_NoActionBar);
+                pdia.setMessage("Loading...");
+                pdia.show();
         }
         // onPostExecute displays the results of the AsyncTask.
         @Override
@@ -249,6 +272,20 @@ public class Display extends AppCompatActivity {
                     }
                 });
 
+        alertDialog2.show();
+    }
+
+    public void req_timed(){
+        AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(Display.this);
+        alertDialog2.setTitle("LOADING CANCELLED");
+        alertDialog2.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent a = new Intent(Display.this, MainActivity.class);
+                        startActivity(a);
+                        dialog.cancel();
+                    }
+                });
         alertDialog2.show();
     }
 }

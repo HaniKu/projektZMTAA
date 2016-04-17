@@ -1,6 +1,10 @@
 package com.example.hanka.projektmtaaa;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -30,8 +34,10 @@ public  class MainActivity extends AppCompatActivity  {
                 String str1 = b.getText().toString();
                 if (str1.equals("123") && str.equals("panko@gmail.com"))
                 {
-                    final Intent i = new Intent(MainActivity.this, Display.class);
-                    startActivity(i);
+                    if(isConnected()) {
+                        final Intent i = new Intent(MainActivity.this, Display.class);
+                        startActivity(i);
+                    }
                 }
                 else
                 {
@@ -69,5 +75,30 @@ public  class MainActivity extends AppCompatActivity  {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    public boolean isConnected()            //zistujem ci som online
+    {
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            return true;
+        } else {
+
+            AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(MainActivity.this);
+            alertDialog2.setTitle("No Internet connection");
+            alertDialog2.setPositiveButton("OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+
+
+                    });
+            alertDialog2.show();
+            return false;
+        }
+
     }
 }
