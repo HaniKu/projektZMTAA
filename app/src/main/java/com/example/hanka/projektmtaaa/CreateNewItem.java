@@ -1,12 +1,10 @@
 package com.example.hanka.projektmtaaa;
-
+//// TODO: 6. 5. 2016 post spraveny 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -20,33 +18,37 @@ import android.widget.Spinner;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import io.socket.client.Ack;
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 
 public class CreateNewItem extends AppCompatActivity {
     private Button save;
-    ProgressDialog pdia;
     private static final String TAG = "MyActivity";
+    Socket socket;
+    String text = "not connected";
+    ArrayList<String> reads = new ArrayList<String>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_new_item);
         save = (Button) findViewById(R.id.save);
 
-        save.setOnClickListener(new View.OnClickListener()
-        {
+        save.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
-                String URL = "https://api.backendless.com/v1/data/skuska";
+                 if (isConnected()) {
+                    spravSocket();
+                    Intent a = new Intent(CreateNewItem.this, Display.class);
+                    startActivity(a);
 
-                if(isConnected()) {
-                    new POSTAsyncTask().execute(URL);
-                }else{
+                } else {
                     AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(CreateNewItem.this);
                     alertDialog2.setTitle("No Internet connection");
                     alertDialog2.setPositiveButton("OK",
@@ -61,46 +63,44 @@ public class CreateNewItem extends AppCompatActivity {
             }
         });
     }
-//// TODO: 14. 4. 2016 osetrit vstupy, ze clovek nemoze zadat nejaku blbost.. spravit to blbovzdorne, to iste plati aj pri edit a cakacky
 
-    private class POSTAsyncTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls) {
-            try {
-                return httpPOST(urls[0]);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return "Nic";
-        }
-
-        protected void onPreExecute(String result){
-            if(!(result == "ahoj" && result == "bad number")) {
-                  super.onPreExecute();
-                  pdia = new ProgressDialog(CreateNewItem.this, R.style.AppTheme_NoActionBar);
-                  pdia.setMessage("Creating...");
-                   pdia.show();
-            }
-        }
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(String result) {
-            if (result.equals("ahoj")){
-                showAlert();
-            }else if (result.equals("bad number")){
-                showAlert1();
-            }
-            else{
-           // Toast.makeText(getBaseContext(), "Sent!", Toast.LENGTH_LONG).show();
-            Intent a = new Intent(CreateNewItem.this, Display.class);
-           // pdia.dismiss();
-            startActivity(a);
-            }
+    public boolean isConnected()            //zistujem ci som online
+    {
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnected()) {
+            return true;
+        } else {
+            return false;
         }
     }
 
+    public void showAlert() {
+        AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(CreateNewItem.this);
+        alertDialog2.setTitle("Invalid data");
+        alertDialog2.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        alertDialog2.show();
+    }
 
-    public String httpPOST(String urlStr) throws IOException {
+    public void showAlert1() {
+        AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(CreateNewItem.this);
+        alertDialog2.setTitle("Uncorrect phone number");
+        alertDialog2.setMessage("the correct format is 09xxxxxxxx");
+        alertDialog2.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+        alertDialog2.show();
+    }
+
+    public JSONObject spravJson() {
         JSONObject json = new JSONObject();
         HttpURLConnection conn = null;
         RadioGroup radioSexGroup = (RadioGroup) findViewById(R.id.radioGroup1);
@@ -120,11 +120,10 @@ public class CreateNewItem extends AppCompatActivity {
         Spinner editText = (Spinner) findViewById(R.id.editText);
         EditText editText2 = (EditText) findViewById(R.id.editName);
 
-        if (editText5.getText().toString().equals("") || editText4.getText().toString().equals("") || editText2.getText().toString().equals("") ||  radioSexGroup.getCheckedRadioButtonId()== -1 ||radioSexGroupSmoking.getCheckedRadioButtonId()== -1 || radioSexGrouplactoza.getCheckedRadioButtonId()== -1 || radioSexGroupglukoza.getCheckedRadioButtonId()== -1 ) {
+        if (editText5.getText().toString().equals("") || editText4.getText().toString().equals("") || editText2.getText().toString().equals("") || radioSexGroup.getCheckedRadioButtonId() == -1 || radioSexGroupSmoking.getCheckedRadioButtonId() == -1 || radioSexGrouplactoza.getCheckedRadioButtonId() == -1 || radioSexGroupglukoza.getCheckedRadioButtonId() == -1) {
             Log.i(TAG, "jedno je null");
-            return "ahoj";
-        }
-        else {
+            showAlert();
+        } else {
             final Spinner spin = (Spinner) findViewById(R.id.spin);
             final Integer edittext11;
             final Integer edittext31;
@@ -197,11 +196,11 @@ public class CreateNewItem extends AppCompatActivity {
                     edittext31 = 3; // they are executed if none of the above case is satisfied
                     break;
             }
-// TODO: 16. 4. 2016 asi bude zly format na cislo.. no asi urcite  
+
             String isPhone = "^[0-9]{4}\\-?[0-9]{3}\\-?[0-9]{3}$";
             if (!(editText5.getText().toString().matches(isPhone))) {
                 Log.i(TAG, "is phone numer OK");
-                return "bad number";
+                showAlert1();
             } else {
                 try {
                     json.put("category", Integer.valueOf(edittext11));
@@ -217,95 +216,87 @@ public class CreateNewItem extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                try {
-                    URL url = new URL(urlStr);
-                    conn = (HttpURLConnection) url.openConnection();
-                    conn.setDoOutput(true);
-                    conn.setDoInput(true);
-                    conn.setRequestMethod("POST");
-                    conn.addRequestProperty("application-ID", "CCB8E7ED-C40B-4D67-FF14-5FD1DC41F500");
-                    conn.addRequestProperty("secret-key", "A92106B5-AACE-6ACD-FF2A-9F2F83830600");
-                    conn.addRequestProperty("Content-Type", "application/json");
-                    conn.addRequestProperty("application-type", "REST");
-                    OutputStreamWriter outs = new OutputStreamWriter(conn.getOutputStream());
-                    Log.i(TAG, "SENDING: " + json.toString());
-                    outs.write(json.toString());
-                    outs.flush();
-                    outs.close();
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (ProtocolException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                if (conn.getResponseCode() == 403) {
-                    Log.i(TAG, "server reached; but access denied");
-                } else if (conn.getResponseCode() == 404) {
-                    Log.i(TAG, "unknown URL");
-                } else if (conn.getResponseCode() == 200) {
-                    Log.i(TAG, "request successfull");
-                } else {
-                    Log.i(TAG, (String.valueOf(conn.getResponseCode())));
-                    Log.i(TAG, "error http response");
-                    Log.i(TAG, "error stream: " + conn.getErrorStream().toString());
-                    Log.i(TAG, conn.getResponseMessage().toString());
-
-                    throw new IOException(conn.getResponseMessage());
-                }
-
-
-                // Buffer the result into a string
-                BufferedReader rd = new BufferedReader(
-                        new InputStreamReader(conn.getInputStream()));
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    sb.append(line);
-                }
-                rd.close();
-
-                conn.disconnect();
-                return sb.toString();
-
             }
         }
+        return json;
     }
-    public boolean isConnected()            //zistujem ci som online
-    {
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected()) {
-            // Toast.makeText(getBaseContext(), "you are connected!", Toast.LENGTH_LONG).show();
-            return true;
-        } else {
-            return false;
+
+    public void spravSocket(){
+
+        IO.Options opts = new IO.Options();
+
+        opts.secure = false;
+        opts.port = 1341;
+        opts.reconnection = true;
+        opts.forceNew = true;
+        opts.timeout = 5000;
+
+        final JSONObject js = new JSONObject();
+        try {
+            js.put("url", "/data/testHana");    //data = tabulka
+            js.put("data", new JSONObject().put("data", new JSONObject().put("nove", spravJson()))); //json v jsonoch
+            Log.i(TAG, "som v spravSocket");
+        } catch(Exception e) {
+            e.printStackTrace();
+            Log.i(TAG, "som v exception  spravSocket");
         }
 
-    }
+        System.out.println(js);
 
-    public void showAlert(){
-        AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(CreateNewItem.this);
-        alertDialog2.setTitle("Invalid data");
-        alertDialog2.setPositiveButton("OK",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
+        try {
+            socket = IO.socket("http://sandbox.touch4it.com:1341/?__sails_io_sdk_version=0.12.1", opts);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+
+            @Override
+            public void call(Object... args) {
+                socket.emit("post", js, new Ack() {
+                    @Override
+                    public void call(Object... args) {
+
+                        try {
+                            text = Arrays.toString(args);       //server odpoved
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        if (!text.equals("")) {
+                            reads.add(text);
+                            Log.d("post response: ", reads.toString());
+                            Log.i(TAG, "post response "+reads.toString());
+                        }
                     }
                 });
-        alertDialog2.show();
-    }
-    public void showAlert1(){
-        AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(CreateNewItem.this);
-        alertDialog2.setTitle("Uncorrect phone number");
-        alertDialog2.setMessage("the correct format is 09xxxxxxxx");
-        alertDialog2.setPositiveButton("OK",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-        alertDialog2.show();
+            }
+
+        }).on("event", new Emitter.Listener() {
+
+            @Override
+            public void call(Object... args) {
+
+                text = Arrays.toString(args);
+                if (!text.equals("")) {
+                    reads.add(text);
+                    Log.d("event response: ", reads.toString());
+                    Log.i(TAG, "event response " + reads.toString());
+                }
+            }
+
+        }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
+
+            @Override
+            public void call(Object... args) {
+
+                text = Arrays.toString(args);
+                if (!text.equals("")) {
+                    reads.add(text);
+                    Log.d("disconnect response: ", reads.toString());
+                }
+            }
+        });
+        socket.connect();
     }
 }
+

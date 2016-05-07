@@ -26,4 +26,8 @@ dependencies {
     compile 'com.android.support:design:23.2.1'
     compile 'com.backendless:android:3.0.6'
     compile 'com.squareup.picasso:picasso:2.5.2'
+    compile ('io.socket:socket.io-client:0.7.0') {
+        // excluding org.json which is provided by Android
+        exclude group: 'org.json', module: 'json'
+    }
 }
