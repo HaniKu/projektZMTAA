@@ -1,91 +1,109 @@
 package com.example.hanka.projektmtaaa;
 
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import org.json.JSONObject;
+
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import io.socket.client.Ack;
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
+
 /**
  * Created by Hanka on 14. 4. 2016.
  */
 public class DeleteItem extends AppCompatActivity {
-
+    Socket socket;
+    String text = "not connected";
+    ArrayList<String> reads = new ArrayList<String>();
     private static final String TAG = "MyActivity";
     private String url = "https://api.backendless.com/v1/data/skuska/";
     private String id = null;
     public DeleteItem(String id) {
         this.id = id;
-        new DELETEAsyncTask().execute(id);
-
+        zmazItem(id);
     }
 
-    private class DELETEAsyncTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls) {
 
-            try {
-                return httpDELETE(urls[0]);
-            } catch (IOException e) {
-                e.printStackTrace();
+
+
+    public void zmazItem(String id){
+        IO.Options opts = new IO.Options();
+
+        opts.secure = false;
+        opts.port = 1341;
+        opts.reconnection = true;
+        opts.forceNew = true;
+        opts.timeout = 5000;
+
+        final JSONObject js = new JSONObject();
+        try {
+            String url = "/data/testHana/"+id;
+            js.put("url", url);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(js);
+
+        try {
+            socket = IO.socket("http://sandbox.touch4it.com:1341/?__sails_io_sdk_version=0.12.1", opts);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+
+            @Override
+            public void call(Object... args) {
+                socket.emit("delete", js, new Ack() {
+                    @Override
+                    public void call(Object... args) {
+
+                        try {
+                            text = Arrays.toString(args);       //server odpoved
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        if (!text.equals("")) {
+                            reads.add(text);
+                            Log.d(TAG,"post response: "+ reads.toString());
+                        }
+                    }
+                });
             }
-            return "Nic";
-        }
 
-        protected void onPreExecute(){
+        }).on("event", new Emitter.Listener() {
 
-        }
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(String result) {
-        }
-    }
+            @Override
+            public void call(Object... args) {
 
-    public String httpDELETE(String id) throws IOException {
-        String finalUrl = url+id;
-        URL url = new URL(finalUrl);
-        HttpURLConnection conn =
-                (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("DELETE");
-        conn.addRequestProperty("application-ID", "CCB8E7ED-C40B-4D67-FF14-5FD1DC41F500");
-        conn.addRequestProperty("secret-key",  "A92106B5-AACE-6ACD-FF2A-9F2F83830600");
-        conn.addRequestProperty("application-type", "REST");
+                text = Arrays.toString(args);
+                if (!text.equals("")) {
+                    reads.add(text);
+                    Log.d(TAG,"event response: "+ reads.toString());
+                }
+            }
 
-        if (conn.getResponseCode() == 403) {
-            Log.i(TAG, "server reached; but access denied");
-        }
-        else if (conn.getResponseCode() == 404) {
-            Log.i(TAG, "unknown URL");
-        }
-        else if (conn.getResponseCode() == 200) {
-            Log.i(TAG, "request successfull");
-        }
-        else {
-            Log.i(TAG,(String.valueOf(conn.getResponseCode())));
-            Log.i(TAG, "error http response");
-            Log.i(TAG,"error stream: "+conn.getErrorStream().toString());
-            Log.i(TAG,conn.getResponseMessage().toString());
+        }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
 
-            throw new IOException(conn.getResponseMessage());
-        }
+            @Override
+            public void call(Object... args) {
 
+                text = Arrays.toString(args);
+                if (!text.equals("")) {
+                    reads.add(text);
+                    Log.d(TAG, "disconnect response: " + reads.toString());
+                }
+            }
 
-
-        // Buffer the result into a string
-        BufferedReader rd = new BufferedReader(
-                new InputStreamReader(conn.getInputStream()));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = rd.readLine()) != null) {
-            sb.append(line);
-        }
-        rd.close();
-
-        conn.disconnect();
-        return sb.toString();
+        });
+        socket.connect();
     }
 
 }
