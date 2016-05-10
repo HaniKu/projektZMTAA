@@ -234,7 +234,7 @@ public class CreateNewItem extends AppCompatActivity {
         final JSONObject js = new JSONObject();
         try {
             js.put("url", "/data/testHana");    //data = tabulka
-            js.put("data", new JSONObject().put("data",spravJson())); //json v jsonoch
+            js.put("data", new JSONObject().put("data", new JSONObject().put("nove", spravJson()))); //json v jsonoch
             Log.i(TAG, "som v spravSocket");
         } catch(Exception e) {
             e.printStackTrace();

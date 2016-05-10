@@ -1,12 +1,10 @@
 package com.example.hanka.projektmtaaa;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -20,31 +18,36 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Arrays;
+
+import io.socket.client.Ack;
+import io.socket.client.IO;
+import io.socket.client.Socket;
 
 public class Display extends AppCompatActivity {
+    Socket socket;
+    ArrayList<String> reads = new ArrayList<String>();
+    String text = "not connected";
     ListView List;
+    Boolean running = true;
+
     FloatingActionButton pridatNovy;
     FloatingActionButton refresh;
-    private ProgressDialog pdia;
     private static final String TAG = "MyActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
-        List = (ListView) findViewById(R.id.textak);
+
+
         refresh = (FloatingActionButton) findViewById(R.id.refresh);
         pridatNovy = (FloatingActionButton) findViewById(R.id.pridatNovy);
-        String skuska = "https://api.backendless.com/v1/data/skuska?where=category%20in%20(1%2C2%2C3)%20and%20openingHours%20in%20(1%2C2%2C3)";
+       // String skuska = "https://api.backendless.com/v1/data/skuska?where=category%20in%20(1%2C2%2C3)%20and%20openingHours%20in%20(1%2C2%2C3)";
         if(isConnected()) {
-            new HttpAsyncTask().execute(skuska);
+            spravSocket();
+            //new HttpAsyncTask().execute(skuska);
         }
         pridatNovy.setOnClickListener(new View.OnClickListener()
 
@@ -91,7 +94,7 @@ public class Display extends AppCompatActivity {
     }
 
 
-    public String httpGET(String urlStr) throws IOException {
+    /*public String httpGET(String urlStr) throws IOException {
         URL url = new URL(urlStr);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.addRequestProperty("application-ID", "CCB8E7ED-C40B-4D67-FF14-5FD1DC41F500");
@@ -117,7 +120,7 @@ public class Display extends AppCompatActivity {
         conn.disconnect();
         Log.d(TAG, "poslat rozaprsovat  " + sb.toString());
         return sb.toString();
-    }
+    }*/
 
 
     public boolean isConnected()            //zistujem ci som online
@@ -143,7 +146,7 @@ public class Display extends AppCompatActivity {
 
     }
 
-    class TaskKiller extends TimerTask {
+  /*  class TaskKiller extends TimerTask {
         private AsyncTask<?, ?, ?> mTask;
         public TaskKiller(AsyncTask<?, ?, ?> task) {
             this.mTask = task;
@@ -152,9 +155,9 @@ public class Display extends AppCompatActivity {
         public void run() {
             mTask.cancel(true);
         }
-    }
+    }*/
 
-    private class HttpAsyncTask extends AsyncTask<String, Void, String> {       //thread na ziskanie url
+ /*   private class HttpAsyncTask extends AsyncTask<String, Void, String> {       //thread na ziskanie url
         @Override
         protected String doInBackground(String... urls) {
 
@@ -181,10 +184,10 @@ public class Display extends AppCompatActivity {
         }
 
         protected void onPreExecute(){
-                super.onPreExecute();
-                pdia = new ProgressDialog(Display.this, R.style.AppTheme_NoActionBar);
-                pdia.setMessage("Loading...");
-                pdia.show();
+            super.onPreExecute();
+            pdia = new ProgressDialog(Display.this, R.style.AppTheme_NoActionBar);
+            pdia.setMessage("Loading...");
+            pdia.show();
         }
         // onPostExecute displays the results of the AsyncTask.
         @Override
@@ -197,64 +200,95 @@ public class Display extends AppCompatActivity {
                 vypisJson(result);
             }
         }
-    }
+    }*/
 
     public void vypisJson(String strJson) {
+        Log.d(TAG, "mlo bz to bz ty"+strJson);
         //  ArrayAdapter<String> adapter = new ArrayAdapter<String>();
-        ArrayList<String> adapter = new ArrayList<String>();
+        final ArrayList<String> adapter = new ArrayList<String>();
         final ArrayList<String> objectID = new ArrayList<String>();
         try {
-            JSONObject jsonRootObject = new JSONObject(strJson);
+            JSONArray jsonRootArray = new JSONArray(strJson);
+            JSONObject jsonRootObject = jsonRootArray.optJSONObject(0);
+            JSONObject jsonDataObject = jsonRootObject.optJSONObject("body");
+            JSONArray jsonDataArray = jsonDataObject.optJSONArray("data");
+            Log.d("socket data array", jsonDataArray.toString());
 
-            //Get the instance of JSONArray that contains JSONObjects
-            JSONArray jsonArray = jsonRootObject.optJSONArray("data");
 
             //Iterate the jsonArray and print the info of JSONObjects
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
+            for (int i = 0; i < jsonDataArray.length(); i++) {
+                JSONObject jsonObject = jsonDataArray.getJSONObject(i);
+                Log.d("object i", jsonObject.toString());
 
-                String adress = jsonObject.optString("adress").toString();
-                String meno = jsonObject.optString("name").toString();
-                String id = jsonObject.optString("objectId").toString();
+                JSONObject jsonObjectD = jsonObject.optJSONObject("data");
+                JSONObject jsonObjectN = jsonObjectD.optJSONObject("nove");
+
+
+                String adress = jsonObjectN.optString("adress").toString();
+                String meno = jsonObjectN.optString("name").toString();
+                String id = jsonObject.optString("id").toString();
+
                 String infro = " \n name: " + meno + " \n adress: " + adress + " \n ";
+                Log.d(TAG, infro);
+                Log.d(TAG, id);
+
 
                 adapter.add(infro);
                 objectID.add(id);
+                Log.d(TAG, adapter.toString());
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this,
+        List = (ListView) findViewById(R.id.textak);
+        final ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, adapter);
-        List.setAdapter(adapter1);
 
-        List.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent newActivity = new Intent(Display.this, OneItemDisplay.class);
-                String cities = String.valueOf(parent.getItemAtPosition(position));
-                String idecko = objectID.get(position);
-                Log.d("log", objectID.get(position));
-                newActivity.putExtra("", idecko);
-                if ((isConnected())) {
-                    startActivity(newActivity);
-                } else {
-                    final AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(Display.this);
-                    alertDialog2.setTitle("No Internet connection");
-                    alertDialog2.setPositiveButton("OK",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
+        Thread viewview = new Thread() {
+            public void run() {
+                while(running == true) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            List.setAdapter(adapter1);
+
+                            List.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                    Intent newActivity = new Intent(Display.this, OneItemDisplay.class);
+                                    String cities = String.valueOf(parent.getItemAtPosition(position));
+                                    String idecko = objectID.get(position);
+                                    Log.d("log", objectID.get(position));
+                                    newActivity.putExtra("", idecko);
+                                    if ((isConnected())) {
+                                        startActivity(newActivity);
+                                    } else {
+                                        final AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(Display.this);
+                                        alertDialog2.setTitle("No Internet connection");
+                                        alertDialog2.setPositiveButton("OK",
+                                                new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int which) {
+                                                        dialog.cancel();
+                                                    }
+                                                });
+                                        alertDialog2.show();
+                                    }
                                 }
                             });
-                    alertDialog2.show();
+                        }
+                    });
+                    Log.d("call","Vypinam nit");
+                    running = false;
                 }
             }
-        });
+        };
+
+        viewview.run();
     }
 
     public void showAlert1(){
         AlertDialog.Builder alertDialog2 = new AlertDialog.Builder(Display.this);
-        alertDialog2.setTitle("Uncorrect data");
+        alertDialog2.setTitle("Incorrect data");
         alertDialog2.setMessage("stay on this activity?");
         alertDialog2.setPositiveButton("OK",
                 new DialogInterface.OnClickListener() {
@@ -287,5 +321,48 @@ public class Display extends AppCompatActivity {
                     }
                 });
         alertDialog2.show();
+    }
+
+    public void spravSocket(){
+
+        IO.Options opts = new IO.Options();
+
+        opts.secure = false;
+        opts.port = 1341;
+        opts.reconnection = true;
+        opts.forceNew = true;
+        opts.timeout = 5000;
+
+        final JSONObject js = new JSONObject();
+        try {
+            js.put("url", "/data/testHana");    //data = tabulka
+            Log.i(TAG, "som v spravSocket");
+        } catch(Exception e) {
+            e.printStackTrace();
+            Log.i(TAG, "som v exception spravSocket");
+        }
+
+        System.out.println(js);
+
+        try {
+            socket = IO.socket("http://sandbox.touch4it.com:1341/?__sails_io_sdk_version=0.12.1", opts);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+                  socket.connect();
+
+            socket.emit("get", js, new Ack() {
+                @Override
+                public void call(Object... args) {
+                    text = Arrays.toString(args);
+                    vypisJson(text);
+                    Log.i(TAG, "Json na spracovanie "+text);
+                    if (!text.equals("")) {
+                        reads.add(text);
+                        Log.d(TAG, "server response: " + reads.toString());
+                    }
+                }
+            });
+        Log.i(TAG, "get response "+text);
     }
 }

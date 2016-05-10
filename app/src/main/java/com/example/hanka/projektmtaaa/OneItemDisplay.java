@@ -27,17 +27,27 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import io.socket.client.Ack;
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
+
 public class OneItemDisplay extends AppCompatActivity {
     ListView List;
+    Socket socket;
+    ArrayList<String> reads = new ArrayList<String>();
     FloatingActionButton edit;
     FloatingActionButton delete;
     ImageView makePhotoBigger;
     String cities;
+    String text="not connected";
     private ProgressDialog pdia;
     private static final String TAG = "MyActivity";
     public String getPoleJson() {
@@ -45,17 +55,19 @@ public class OneItemDisplay extends AppCompatActivity {
     }
     String urlObrazka;
     String poleJson = null;
+    Boolean running = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_one_item_display);
-        List = (ListView) findViewById(R.id.textik);
+
         cities = getIntent().getStringExtra("");
         Log.d(TAG, "idecko je "+cities);
         String skuska = "https://api.backendless.com/v1/data/skuska?where=objectId%20%3D%20'"+cities+"'";
         Log.d("skuska", "som tu");
         if(isConnected()) {
-            new HttpAsyncTask().execute(skuska);
+            //new HttpAsyncTask().execute(skuska);
+            spravSocket(cities);
         }
 
         edit = (FloatingActionButton) findViewById(R.id.edit);
@@ -239,9 +251,9 @@ public class OneItemDisplay extends AppCompatActivity {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-                Log.d(TAG, "rozaprsovat treba " + result);
-                pdia.dismiss();
-                vypisJson(result);
+            Log.d(TAG, "rozaprsovat treba " + result);
+            pdia.dismiss();
+            vypisJson(result);
         }
     }
 
@@ -250,85 +262,103 @@ public class OneItemDisplay extends AppCompatActivity {
         ArrayList<String> adapter = new ArrayList<String>();
         final ArrayList<String> objectID = new ArrayList<String>();
         try {
-            JSONObject jsonRootObject = new JSONObject(strJson);
-
-            //Get the instance of JSONArray that contains JSONObjects
-            JSONArray  jsonArray = jsonRootObject.optJSONArray("data");
+            JSONArray jsonRootArray = new JSONArray(strJson);
+            JSONObject jsonRootObject = jsonRootArray.optJSONObject(0);
+            JSONObject jsonDataObject = jsonRootObject.optJSONObject("body");
+            JSONObject jsonObject2 = jsonDataObject.optJSONObject("data");
+            JSONObject jsonObject = jsonObject2.optJSONObject("nove");
+            Log.d("socket data array", jsonObject.toString());
 
             //Iterate the jsonArray and print the info of JSONObjects
-            for(int i=0; i < jsonArray.length(); i++){
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                Integer kategoria = Integer.parseInt(jsonObject.optString("category").toString());
-                String kategory;
-                switch (kategoria) {
-                    case 1:
-                        kategory = "bakery cafe";
-                        break;
-                    case 2:
-                        kategory = "cafe";
-                        break;
-                    default:
-                        kategory = "coffee to go";
-                        break;
-                }
-                String meno = jsonObject.optString("name").toString();
-                String adress = jsonObject.optString("adress").toString();
-                Integer openingHours = Integer.parseInt(jsonObject.optString("openingHours").toString());
-                String phoneNumber = (jsonObject.optString("phoneNumber").toString());
-                String cislo;
-                switch (openingHours) {
-                    case 1:
-                        cislo = "nonstop";
-                        break;
-                    case 2:
-                        cislo = "closed";
-                        break;
-                    default:
-                        cislo = "from 10 to 20";
-                        break;
-                }
-                boolean wifi = Boolean.parseBoolean(jsonObject.optString("wifi").toString());
-                String wifibool;
-                if (wifi == true) {
-                    wifibool = "Yes";
-                } else {
-                    wifibool = "No";
-                }
-                boolean smoking = Boolean.parseBoolean(jsonObject.optString("smoking").toString());
-                String smokebool;
-                if (smoking == true) {
-                    smokebool = "Yes";
-                } else {
-                    smokebool = "No";
-                }
-                boolean lactoseFree = Boolean.parseBoolean(jsonObject.optString("lactoseFree").toString());
-                String lactabool;
-                if (lactoseFree == true) {
-                    lactabool = "Yes";
-                } else {
-                    lactabool = "No";
-                }
-                boolean glutenFree = Boolean.parseBoolean(jsonObject.optString("glutenFree").toString());
-                String glutenbool;
-                if (glutenFree == true) {
-                    glutenbool = "Yes";
-                } else {
-                    glutenbool = "No";
-                }
-                urlObrazka = jsonObject.optString("picture").toString();
-                Log.d(TAG,urlObrazka);
-                String infro ="\n type: "+kategory+" \n " +" \n name: "+ meno +" \n " +" \n adress: "+ adress +" \n " + " \n opening hours: "+ cislo +" \n " +" \n phone Number: "+ phoneNumber +" \n "+" \n wifi: "+ wifibool +" \n " + " \n smoking: "+ smokebool +" \n " +" \n lactoseFree: "+ lactabool +" \n "+" \n glutenFree: "+ glutenbool +" \n " ;
-                adapter.add(infro);
+
+            Integer kategoria = Integer.parseInt(jsonObject.optString("category").toString());
+            String kategory;
+            switch (kategoria) {
+                case 1:
+                    kategory = "bakery cafe";
+                    break;
+                case 2:
+                    kategory = "cafe";
+                    break;
+                default:
+                    kategory = "coffee to go";
+                    break;
             }
+            String meno = jsonObject.optString("name").toString();
+            String adress = jsonObject.optString("adress").toString();
+            Integer openingHours = Integer.parseInt(jsonObject.optString("openingHours").toString());
+            String phoneNumber = (jsonObject.optString("phoneNumber").toString());
+            String cislo;
+            switch (openingHours) {
+                case 1:
+                    cislo = "nonstop";
+                    break;
+                case 2:
+                    cislo = "closed";
+                    break;
+                default:
+                    cislo = "from 10 to 20";
+                    break;
+            }
+            boolean wifi = Boolean.parseBoolean(jsonObject.optString("wifi").toString());
+            String wifibool;
+            if (wifi == true) {
+                wifibool = "Yes";
+            } else {
+                wifibool = "No";
+            }
+            boolean smoking = Boolean.parseBoolean(jsonObject.optString("smoking").toString());
+            String smokebool;
+            if (smoking == true) {
+                smokebool = "Yes";
+            } else {
+                smokebool = "No";
+            }
+            boolean lactoseFree = Boolean.parseBoolean(jsonObject.optString("lactoseFree").toString());
+            String lactabool;
+            if (lactoseFree == true) {
+                lactabool = "Yes";
+            } else {
+                lactabool = "No";
+            }
+            boolean glutenFree = Boolean.parseBoolean(jsonObject.optString("glutenFree").toString());
+            String glutenbool;
+            if (glutenFree == true) {
+                glutenbool = "Yes";
+            } else {
+                glutenbool = "No";
+            }
+            urlObrazka = jsonObject.optString("picture").toString();
+            Log.d(TAG,urlObrazka);
+            String infro ="\n type: "+kategory+" \n " +" \n name: "+ meno +" \n " +" \n adress: "+ adress +" \n " + " \n opening hours: "+ cislo +" \n " +" \n phone Number: "+ phoneNumber +" \n "+" \n wifi: "+ wifibool +" \n " + " \n smoking: "+ smokebool +" \n " +" \n lactoseFree: "+ lactabool +" \n "+" \n glutenFree: "+ glutenbool +" \n " ;
+            adapter.add(infro);
+
         } catch (JSONException e){
             e.printStackTrace();
         }
-        ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this,
+
+        List = (ListView) findViewById(R.id.textik);
+        final ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, adapter);
-        List.setAdapter(adapter1);
-        ImageView imageView = (ImageView) findViewById(R.id.imageView);
-        Picasso.with(this).load(urlObrazka).into(imageView);
+        Thread viewview = new Thread() {
+            public void run() {
+                while(running == true) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            List.setAdapter(adapter1);
+                            ImageView imageView = (ImageView) findViewById(R.id.imageView);
+                            Picasso.with(getBaseContext()).load(urlObrazka).into(imageView);
+                        }
+                    });
+                    Log.d("call","Vypinam nit");
+                    running = false;
+                }
+            }
+        };
+        viewview.run();
+
     }
 
     public void req_timed(){
@@ -343,5 +373,84 @@ public class OneItemDisplay extends AppCompatActivity {
                     }
                 });
         alertDialog2.show();
+    }
+
+
+    public void spravSocket(String id){
+
+        IO.Options opts = new IO.Options();
+
+        opts.secure = false;
+        opts.port = 1341;
+        opts.reconnection = true;
+        opts.forceNew = true;
+        opts.timeout = 5000;
+
+        final JSONObject js = new JSONObject();
+        try {
+            js.put("url", "/data/testHana/"+cities);    //data = tabulka
+            Log.i(TAG, "som v spravSocket");
+        } catch(Exception e) {
+            e.printStackTrace();
+            Log.i(TAG, "som v exception spravSocket");
+        }
+
+        System.out.println(js);
+
+        try {
+            socket = IO.socket("http://sandbox.touch4it.com:1341/?__sails_io_sdk_version=0.12.1", opts);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+
+            @Override
+            public void call(Object... args) {
+                socket.emit("get", js, new Ack() {
+                    @Override
+                    public void call(Object... args) {
+
+                        try {
+                            text = Arrays.toString(args);       //server odpoved
+                            vypisJson(text);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        if (!text.equals("")) {
+                            reads.add(text);
+                            Log.d("get one response: ", reads.toString());
+                            Log.i(TAG, "get one response "+reads.toString());
+                        }
+                    }
+                });
+            }
+
+        }).on("event", new Emitter.Listener() {
+
+            @Override
+            public void call(Object... args) {
+
+                text = Arrays.toString(args);
+                if (!text.equals("")) {
+                    reads.add(text);
+                    Log.d("event response: ", reads.toString());
+                    Log.i(TAG, "event response " + reads.toString());
+                }
+            }
+
+        }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
+
+            @Override
+            public void call(Object... args) {
+
+                text = Arrays.toString(args);
+                if (!text.equals("")) {
+                    reads.add(text);
+                    Log.d("disconnect response: ", reads.toString());
+                }
+            }
+        });
+        socket.connect();
     }
 }
